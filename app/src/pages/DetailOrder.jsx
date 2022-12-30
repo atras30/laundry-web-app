@@ -161,7 +161,7 @@ export default function DetailOrder() {
   }
 
   async function handleWhatsappChat() {
-    const text = `Halo pelanggan cinta laundry!\n\nkami ingin memberikan info bahwa pesanan kamu sudah selesai dan sudah bisa diambil ya di Kota Sutera Cluster BlossomVille Blok B7/20 (Cinta Laundry)\n\nberikut rincian keterangan pesanannya :\nKategori : *${order?.category}*\nBerat : *${order?.weight_in_kg}*\nHarga : *Rp. ${order?.price}*\nStatus Pesanan : *${order?.status}*\nStatus Pembayaran : *${order?.payment_status}*\n\nterimakasih telah mempercayakan kebutuhan laundry anda kepada kami.\n\n-Salam hangat, Cinta Laundry-`;
+    const text = `Halo pelanggan cinta laundry!\n\nkami ingin memberikan info bahwa pesanan kamu sudah selesai dan sudah bisa diambil di *Kota Sutera Cluster BlossomVille Blok B7/20* atau *Taman Nuri Blok NC1/32* (Cinta Laundry)\n\nberikut rincian keterangan pesanannya :\nLayanan : *${order?.category}*\nBerat : *${order?.weight_in_kg}*\nHarga : *Rp. ${order?.price}*\nStatus Pesanan : *${order?.status}*\nStatus Pembayaran : *${order?.payment_status}*\n\nterimakasih telah mempercayakan kebutuhan laundry anda kepada kami.\n\n-Salam hangat, Cinta Laundry-`;
 
     // await navigator.clipboard.writeText(text);
 
@@ -186,7 +186,7 @@ export default function DetailOrder() {
                   </tr>
 
                   <tr>
-                    <td className="fw-bold">Kategori</td>
+                    <td className="fw-bold">Layanan</td>
                     <td className="px-2">:</td>
                     <td>{order?.category}</td>
                   </tr>
@@ -233,13 +233,13 @@ export default function DetailOrder() {
       </div>
 
       <div className="container d-flex gap-2 mb-3">
-        <select ref={orderStatus} onChange={handleStatusChange} class="form-select btn btn-primary" aria-label="Default select example">
+        <select ref={orderStatus} onChange={handleStatusChange} className="form-select btn btn-primary" aria-label="Default select example">
           <option>Ubah Status</option>
           <option value="Sedang dikerjakan">Sedang dikerjakan</option>
           <option value="Menunggu diambil">Menunggu diambil</option>
           <option value="Selesai">Selesai</option>
         </select>
-        <select ref={statusPayment} onChange={handlePaymentStatusChange} class="form-select btn btn-primary" aria-label="Default select example">
+        <select ref={statusPayment} onChange={handlePaymentStatusChange} className="form-select btn btn-primary" aria-label="Default select example">
           <option>Ubah Status Bayar</option>
           <option value="Lunas">Lunas</option>
           <option value="Belum bayar">Belum bayar</option>
@@ -256,19 +256,19 @@ export default function DetailOrder() {
         </button>
       </div>
 
-      <div class="modal fade" id="delete-modal" tabindex="-1" aria-labelledby="delete-modal" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h1 class="modal-title fs-5 text-center" id="exampleModalLabel">
+      <div className="modal fade" id="delete-modal" tabindex="-1" aria-labelledby="delete-modal" aria-hidden="true">
+        <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h1 className="modal-title fs-5 text-center" id="exampleModalLabel">
                 yakin ingin menghapus pesanan ?
               </h1>
             </div>
-            <div class="modal-footer">
-              <button ref={closeModalButton} type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <div className="modal-footer">
+              <button ref={closeModalButton} type="button" className="btn btn-secondary" data-bs-dismiss="modal">
                 Kembali
               </button>
-              <button type="button" class="btn btn-primary" onClick={deleteOrder}>
+              <button type="button" className="btn btn-primary" onClick={deleteOrder}>
                 Ya, Yakin!
               </button>
             </div>

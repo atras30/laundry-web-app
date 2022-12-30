@@ -24,7 +24,7 @@ export default function Dashboard() {
         },
       })
       .catch((error) => {
-        if (error.response.data.message === "Unauthenticated.") {
+        if (error?.response?.data?.message === "Unauthenticated.") {
           new Cookies().remove("token");
           navigate("/");
         }
@@ -45,8 +45,8 @@ export default function Dashboard() {
     <MasterLayout>
       <div className="container orders">
         <div className="title fw-bold fs-4 text-center text-black mb-3">Antrian Customer</div>
-        <div class="mb-3">
-          <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Search..." />
+        <div className="mb-3">
+          <input type="text" className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Search..." />
         </div>
 
         {new Cookies().get("token") && (

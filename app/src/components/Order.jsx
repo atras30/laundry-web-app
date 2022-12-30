@@ -29,7 +29,7 @@ export default function Order({ order }) {
               </tr>
 
               <tr>
-                <td className="fw-bold">Kategori</td>
+                <td className="fw-bold">Layanan</td>
                 <td className="px-2">:</td>
                 <td>{order.category}</td>
               </tr>

@@ -187,7 +187,7 @@ export default function AddOrder() {
             <select ref={category} id="category" className="form-select shadow-sm" aria-label="Default select example" onChange={handleCategoryChange}>
               <option>Pilih Jenis Laundry</option>
               {categories?.map((category) => (
-                <Category category={category} />
+                <Category key={category.id} category={category} />
               ))}
             </select>
           </div>
@@ -236,9 +236,9 @@ export default function AddOrder() {
                 <label htmlFor="input-tel" className="form-label">
                   Phone
                 </label>
-                <div class="input-group mb-3">
-                  <span class="input-group-text">+62</span>
-                  <input ref={inputPhone} id="input-tel" type="tel" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default" />
+                <div className="input-group mb-3">
+                  <span className="input-group-text">+62</span>
+                  <input ref={inputPhone} id="input-tel" type="tel" className="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default" />
                 </div>
               </div>
               <div className="modal-footer d-flex flex-column">
