@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\AuthenticationController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\OrderController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,6 +18,18 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get("/auth/users", [AuthenticationController::class, "getUser"]);
+    Route::get("/customers", [CustomerController::class, "getAllCustomers"]);
+    Route::post("/customers", [CustomerController::class, "store"]);
+    Route::post("/auth/logout", [AuthenticationController::class, "logout"]);
+    Route::post("/orders", [OrderController::class, "order"]);
+    Route::delete("/orders/{id}", [OrderController::class, "delete"]);
+    Route::put("/orders/status/{id}", [OrderController::class, "updateStatus"]);
+    Route::put("/orders/payment_status/{id}", [OrderController::class, "updatePaymentStatus"]);
 });
+
+Route::post("/auth/login", [AuthenticationController::class, "login"]);
+Route::get("/orders", [OrderController::class, "getAllOrders"]);
+Route::get("/orders/{id}", [OrderController::class, "getOrderById"]);
+Route::get("/categories", [CategoryController::class, "getAllCategory"]);
