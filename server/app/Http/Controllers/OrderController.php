@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\SubOrder;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -22,7 +23,7 @@ class OrderController extends Controller
 
     public function getOrderById($id)
     {
-        $orders = Order::with("customer")->where("id", $id)->get()->first();
+        $orders = Order::with("customer", "subOrders")->where("id", $id)->get()->first();
 
         return Response()->json([
             "message" => "Berhasil mengambil order.",
@@ -68,16 +69,25 @@ class OrderController extends Controller
     {
         $validated = $request->validate([
             "customer_id" => "required|numeric",
-            "weight_in_kg" => "required|numeric",
-            "category" => "required|string",
+            "orders" => "required|string",
             "notes" => "present",
             "payment_status" => "required|string",
             "price" => "required|numeric"
         ]);
 
         if (!$validated['notes']) $validated['notes'] = "";
-
         $order = Order::create($validated);
+
+        $subOrders = json_decode($validated['orders']);
+        foreach ($subOrders as $subOrder) {
+            SubOrder::create([
+                "order_id" => $order->id,
+                "type" => $subOrder->jenisLaundry,
+                "price_per_kg" => $subOrder->hargaPerKilo,
+                "amount" => $subOrder->jumlah,
+                "total" => $subOrder->subTotal,
+            ]);
+        }
 
         return Response()->json([
             "message" => "Pesanan berhasil dibuat.",

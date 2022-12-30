@@ -8,6 +8,7 @@ import { apiBaseUrl } from "../provider/ApiService";
 import MasterLayout from "../layouts/MasterLayout";
 import Cookies from "universal-cookie";
 import { useNavigate } from "react-router-dom";
+import DetailSubOrder from "../components/DetailSubOrder";
 
 export default function DetailOrder() {
   const [order, setOrder] = useState(null);
@@ -27,6 +28,7 @@ export default function DetailOrder() {
       .get(apiBaseUrl(`/orders/${orderId}`))
       .then((response) => {
         setOrder(response.data.order);
+        console.log(response.data.order);
       })
       .catch((error) => {
         toast.error(error.response.data.message);
@@ -168,6 +170,25 @@ export default function DetailOrder() {
     window.location.href = `https://api.whatsapp.com/send/?phone=${order.customer.phone_number}&text=${encodeURIComponent(text)}`;
   }
 
+  function formatRupiah(angka, prefix) {
+    if (!angka) return;
+    angka = angka.toString();
+    var number_string = angka.replace(/[^,\d]/g, "").toString(),
+      split = number_string.split(","),
+      sisa = split[0].length % 3,
+      rupiah = split[0].substr(0, sisa),
+      ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+
+    // tambahkan titik jika yang di input sudah menjadi angka ribuan
+    if (ribuan) {
+      let separator = sisa ? "." : "";
+      rupiah += separator + ribuan.join(".");
+    }
+
+    rupiah = split[1] !== undefined ? rupiah + "," + split[1] : rupiah;
+    return prefix === undefined ? rupiah : rupiah ? "Rp. " + rupiah : "";
+  }
+
   return (
     <MasterLayout>
       <div className="title fw-bold fs-2 text-center mb-3">Detail Order</div>
@@ -177,7 +198,7 @@ export default function DetailOrder() {
             <h5 className="card-header fw-bold text-center rounded-top p-2 border-2 border-black border-bottom">{order?.customer.name}</h5>
 
             <div className="p-3">
-              <table>
+              <table style={{ width: "100%" }}>
                 <tbody>
                   <tr>
                     <td className="fw-bold">Alamat</td>
@@ -186,21 +207,17 @@ export default function DetailOrder() {
                   </tr>
 
                   <tr>
-                    <td className="fw-bold">Layanan</td>
-                    <td className="px-2">:</td>
-                    <td>{order?.category}</td>
+                    <td colspan="3">
+                      {order?.sub_orders?.map((subOrder) => (
+                        <DetailSubOrder subOrder={subOrder} />
+                      ))}
+                    </td>
                   </tr>
 
                   <tr>
-                    <td className="fw-bold">Berat</td>
+                    <td className="fw-bold">Total Harga</td>
                     <td className="px-2">:</td>
-                    <td>{order?.weight_in_kg} Kg</td>
-                  </tr>
-
-                  <tr>
-                    <td className="fw-bold">Harga</td>
-                    <td className="px-2">:</td>
-                    <td>Rp. {order?.price}</td>
+                    <td>{formatRupiah(order?.price, "Rp. ")}</td>
                   </tr>
 
                   <tr>
@@ -256,7 +273,7 @@ export default function DetailOrder() {
         </button>
       </div>
 
-      <div className="modal fade" id="delete-modal" tabindex="-1" aria-labelledby="delete-modal" aria-hidden="true">
+      <div className="modal fade" id="delete-modal" tabIndex="-1" aria-labelledby="delete-modal" aria-hidden="true">
         <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
           <div className="modal-content">
             <div className="modal-header">

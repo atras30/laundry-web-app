@@ -13,17 +13,16 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('orders', function (Blueprint $table) {
-            // $table->id();
-            $table->uuid("id")->unique()->primary();
-            $table->foreignId('customer_id')
+        Schema::create('sub_orders', function (Blueprint $table) {
+            $table->id();
+            $table->foreignUuid('order_id')
                 ->constrained()
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
-            $table->string("status")->default("Sedang dikerjakan");
-            $table->string("payment_status");
-            $table->text("notes")->default("");
-            $table->unsignedInteger("price");
+            $table->string("type");
+            $table->unsignedInteger("price_per_kg");
+            $table->string("amount");
+            $table->unsignedInteger("total");
             $table->timestamps();
         });
     }
@@ -35,6 +34,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('orders');
+        Schema::dropIfExists('sub_orders');
     }
 };

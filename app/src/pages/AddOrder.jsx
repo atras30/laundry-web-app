@@ -1,23 +1,26 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useId, useRef, useState } from "react";
 import MasterLayout from "../layouts/MasterLayout";
-import Customer from "../components/CustomerDatalist";
 import axios from "axios";
 import { apiBaseUrl } from "../provider/ApiService";
 import Cookies from "universal-cookie";
 import { toast } from "react-toastify";
-import Category from "../components/Category";
-import InputBerat from "../components/InputBerat";
-import InputUnit from "../components/InputUnit";
 import { useNavigate } from "react-router-dom";
+import SubOrder from "../components/SubOrder";
 
 export default function AddOrder() {
   const [totalPrice, setTotalPrice] = useState(0);
   const [customers, setCustomers] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [chosenCategory, setChosenCategory] = useState([]);
+  const [subOrders, setSubOrders] = useState([
+    {
+      id: 1,
+      jenisLaundry: "",
+      jumlah: "",
+      hargaPerKilo: "",
+      subTotal: 0,
+    },
+  ]);
   const pickCustomer = useRef(null);
-  const weightInKg = useRef(null);
-  const category = useRef(null);
   const paymentStatus = useRef(null);
   const notes = useRef(null);
   const inputName = useRef(null);
@@ -55,25 +58,11 @@ export default function AddOrder() {
       .get(apiBaseUrl("/categories"))
       .then((response) => {
         setCategories(response.data.categories);
-        console.log(response.data.categories);
+        // console.log(response.data.categories);
       })
       .catch((error) => {
         toast.error(error.response.data);
       });
-  }
-
-  function handleCategoryChange() {
-    const chosenCategory = categories.find((eachCategory) => parseInt(eachCategory.id) === parseInt(category.current.value));
-
-    if (!chosenCategory) return setTotalPrice(0);
-
-    setChosenCategory(chosenCategory);
-
-    if (chosenCategory.price_per_multiplied_kg != null) {
-      return setTotalPrice(chosenCategory.price * Math.ceil(weightInKg.current.value / chosenCategory.price_per_multiplied_kg));
-    }
-
-    return setTotalPrice(chosenCategory.price * weightInKg.current.value);
   }
 
   function togglePaymentStatus() {
@@ -112,8 +101,7 @@ export default function AddOrder() {
         apiBaseUrl("/orders"),
         {
           customer_id: customerId,
-          weight_in_kg: weightInKg.current.value,
-          category: chosenCategory.title,
+          orders: JSON.stringify(subOrders),
           notes: notes.current.value,
           payment_status: paymentStatus.current.textContent,
           price: totalPrice,
@@ -126,7 +114,9 @@ export default function AddOrder() {
       )
       .then((response) => {
         toast.success(response.data.message);
-        navigate("/");
+        // console.log(response.data.order);
+        navigate(`/orders?id=${response.data.order.id}`);
+        // http://localhost:3000/?#/orders?id=981b781c-0a5f-48a6-8669-377a386c136d
       })
       .catch((error) => {
         toast.error(error.response.data.message);
@@ -158,6 +148,37 @@ export default function AddOrder() {
       });
   }
 
+  useEffect(() => {
+    console.log("Sub Orders in AddOrder.jsx", subOrders);
+  }, [subOrders]);
+
+  const addSubOrder = () => {
+    setSubOrders((prevValue) => [
+      ...prevValue,
+      {
+        id: prevValue[prevValue.length - 1].id + 1,
+        jenisLaundry: "",
+        jumlah: "",
+        subTotal: 0,
+      },
+    ]);
+  };
+
+  const deleteSubOrder = () => {
+    // setSubOrders((prevValue) => prevValue.pop());
+    setSubOrders(subOrders.slice(0, -1));
+  };
+
+  const calculateTotalPrice = () => {
+    let total = 0;
+
+    subOrders.forEach((order) => {
+      total += order.subTotal;
+    });
+
+    setTotalPrice(total);
+  };
+
   return (
     <MasterLayout>
       <div className="container">
@@ -169,7 +190,7 @@ export default function AddOrder() {
             <input ref={pickCustomer} className="form-control shadow-sm" list="datalistOptions" id="exampleDataList" placeholder="Ketik untuk mencari customer..." />
             <datalist id="datalistOptions">
               {customers?.map((customer) => (
-                <Customer key={customer.id} customer={customer} />
+                <option key={customer.id} value={`${customer.id}. ${customer.name}`}></option>
               ))}
             </datalist>
             <p className="mt-1">
@@ -179,22 +200,26 @@ export default function AddOrder() {
               </button>
             </p>
           </div>
-          <div className="mb-2">
-            <label htmlFor="category" className="mb-2 fw-bold">
-              Jenis Laundry
-            </label>
-
-            <select ref={category} id="category" className="form-select shadow-sm" aria-label="Default select example" onChange={handleCategoryChange}>
-              <option>Pilih Jenis Laundry</option>
-              {categories?.map((category) => (
-                <Category key={category.id} category={category} />
-              ))}
-            </select>
+          {subOrders.map((index) => (
+            <SubOrder calculateTotalPrice={calculateTotalPrice} formatRupiah={formatRupiah} index={index.id} subOrders={subOrders} categories={categories} key={index.id} />
+          ))}
+          <div className="d-flex justify-content-end gap-2">
+            <button className="btn btn-danger my-2 fw-bold" onClick={deleteSubOrder}>
+              <i className="me-1 bi bi-dash-circle"></i> Hapus Layanan
+            </button>
+            <button className="btn btn-primary my-2 fw-bold" onClick={addSubOrder}>
+              <i className="me-1 bi bi-plus-circle"></i> Tambah Layanan
+            </button>
           </div>
-          <InputBerat weightInKg={weightInKg} handleCategoryChange={handleCategoryChange} />
-          <div className="form-floating mb-3">
-            <textarea ref={notes} className="form-control" placeholder="Leave a comment here" id="floatingTextarea"></textarea>
-            <label htmlFor="floatingTextarea">Catatan</label>
+
+          <div className="catatan">
+            <label htmlFor="input-catatan" className="fw-bold mb-2">
+              Catatan
+            </label>
+            <div className="form-floating mb-3">
+              <textarea id="input-catatan" ref={notes} className="form-control" placeholder="Leave a comment here"></textarea>
+              <label htmlFor="floatingTextarea">Catatan</label>
+            </div>
           </div>
           <div className="status d-flex mb-3">
             <span ref={paymentStatus} className="bg-danger flex-grow-1 p-2 rounded py-1 fw-bold text-white shadow-sm border border-1 text-center" onClick={togglePaymentStatus}>

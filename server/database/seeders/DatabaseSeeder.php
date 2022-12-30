@@ -7,6 +7,7 @@ namespace Database\Seeders;
 use App\Models\Category;
 use App\Models\Customer;
 use App\Models\Order;
+use App\Models\SubOrder;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
@@ -52,18 +53,29 @@ class DatabaseSeeder extends Seeder
         ]);
 
         Order::create([
+            "id" => 1,
             "customer_id" => 1,
-            "category" => "Cuci Kering",
-            "weight_in_kg" => 6.5,
             "price" => 26000,
             "status" => "Sedang dikerjakan",
             "notes" => "Ambil besok",
             "payment_status" => "Belum bayar"
         ]);
+        SubOrder::create([
+            "order_id" => 1,
+            "type" => "Cuci Kering",
+            "price_per_kg" => "4000",
+            "amount" => "4 KG",
+            "total" => "16000",
+        ]);
+        SubOrder::create([
+            "order_id" => 1,
+            "type" => "Cuci Kering Setrika",
+            "price_per_kg" => "6000",
+            "amount" => "4 KG",
+            "total" => "6000",
+        ]);
         Order::create([
             "customer_id" => 2,
-            "category" => "Setrika",
-            "weight_in_kg" => 7,
             "price" => 34000,
             "status" => "Selesai",
             "notes" => "Ambil minggu depan",
@@ -71,8 +83,6 @@ class DatabaseSeeder extends Seeder
         ]);
         Order::create([
             "customer_id" => 1,
-            "category" => "Cuci Kering",
-            "weight_in_kg" => 2,
             "price" => 12000,
             "status" => "Menunggu diambil",
             "notes" => "Jumlah 34pcs",
@@ -80,8 +90,6 @@ class DatabaseSeeder extends Seeder
         ]);
         Order::create([
             "customer_id" => 3,
-            "category" => "Bed Cover Kecil",
-            "weight_in_kg" => 1,
             "price" => 12000,
             "status" => "Sedang dikerjakan",
             "notes" => "-",
@@ -89,8 +97,6 @@ class DatabaseSeeder extends Seeder
         ]);
         Order::create([
             "customer_id" => 3,
-            "category" => "Cuci Kering",
-            "weight_in_kg" => 7,
             "price" => 24000,
             "status" => "Menunggu diambil",
             "payment_status" => "Lunas"
