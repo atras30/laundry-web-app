@@ -36,7 +36,7 @@ export default function NavbarAdmin() {
   }
 
   return (
-    <nav className="navbar mb-3 navbar-expand-lg bg-light position-relative shadow-sm">
+    <nav className="navbar mb-3 navbar-expand-lg position-relative shadow-sm navbar-background">
       <div className="container-fluid px-4">
         <Link className="navbar-brand fw-semibold" to="/">
           <img className="rounded-pill me-2" style={{ width: "30px", height: "30px" }} src="/logo.jpg" alt="Cinta Laundry Logo" />
@@ -49,7 +49,12 @@ export default function NavbarAdmin() {
           <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
             <li className="nav-item">
               <Link className="nav-link active" to="/admin">
-                Lihat Data Customer
+                Daftar Order
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link className="nav-link active" to="/admin/customers">
+                Daftar Customer
               </Link>
             </li>
             <li className="nav-item">

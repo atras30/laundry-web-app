@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 export default function Navbar() {
   return (
-    <nav className="navbar mb-3 navbar-expand-lg bg-light position-relative shadow-sm">
+    <nav className="navbar mb-3 navbar-expand-lg position-relative shadow-sm navbar-background">
       <div className="container-fluid px-4">
         <Link className="navbar-brand" to="/">
           <img className="rounded-pill me-2" style={{ width: "30px", height: "30px" }} src="/logo.jpg" alt="Cinta Laundry Logo" />

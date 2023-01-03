@@ -22,29 +22,25 @@ export default function DetailSubOrder({ subOrder }) {
   }
 
   return (
-    <div style={{ background: "#eaeaea" }} className="p-3 mb-3 rounded shadow-sm border border-1 border-secondary mt-2 pt-3 pb-4">
-      <div className="d-flex justify-content-between align-items-start gap-2 flex-column">
-        <div className="row col-12">
-          <div className="fw-bold col-4">Jenis Layanan</div>
-          <div className="col-1">:</div>
-          <div className="col-7">{subOrder.type}</div>
-        </div>
-        <div className="row col-12">
-          <div className="fw-bold col-4">Harga Per KG</div>
-          <div className="col-1">:</div>
-          <div className="col-7">{subOrder.price_per_kg}</div>
-        </div>
-        <div className="row col-12">
-          <div className="fw-bold col-4">Jumlah</div>
-          <div className="col-1">:</div>
-          <div className="col-7">{subOrder.amount}</div>
-        </div>
-        <div className="row col-12">
-          <div className="fw-bold col-4">Sub Total</div>
-          <div className="col-1">:</div>
-          <div className="col-7">{subOrder.total}</div>
-        </div>
-      </div>
-    </div>
+    <table class="table table-bordered table-striped shadow-sm text-center rounded overflow-hidden">
+      <thead class="table-dark">
+        <tr>
+          <th colSpan={4}>{subOrder.type}</th>
+          {console.log(subOrder)}
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Harga</td>
+          <td>
+            {formatRupiah(subOrder.price_per_kg, "Rp. ")} {+parseInt(subOrder.is_price_per_unit) === 1 ? " / Unit" : " / KG"}
+          </td>
+        </tr>
+        <tr>
+          <td>Sub Total</td>
+          <td>{formatRupiah(subOrder.total, "Rp. ")}</td>
+        </tr>
+      </tbody>
+    </table>
   );
 }

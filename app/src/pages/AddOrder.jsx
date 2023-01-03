@@ -26,6 +26,8 @@ export default function AddOrder() {
   const inputName = useRef(null);
   const inputAddress = useRef(null);
   const inputPhone = useRef(null);
+  const inputMoney = useRef(null);
+  const kembalian = useRef(null);
   const buttonDismissCreateCustomerModal = useRef(null);
   const navigate = useNavigate();
 
@@ -109,17 +111,17 @@ export default function AddOrder() {
         {
           headers: {
             Authorization: new Cookies().get("token"),
+            Accept: "application/json",
           },
         }
       )
       .then((response) => {
         toast.success(response.data.message);
-        // console.log(response.data.order);
         navigate(`/orders?id=${response.data.order.id}`);
-        // http://localhost:3000/?#/orders?id=981b781c-0a5f-48a6-8669-377a386c136d
       })
       .catch((error) => {
         toast.error(error.response.data.message);
+        console.log(error.response.data.message);
       });
   }
 
@@ -153,6 +155,19 @@ export default function AddOrder() {
   }, [subOrders]);
 
   const addSubOrder = () => {
+    //sub orders gaada isinya '[]'
+    if (subOrders.length === 0) {
+      return setSubOrders([
+        {
+          id: 1,
+          jenisLaundry: "",
+          jumlah: "",
+          subTotal: 0,
+        },
+      ]);
+    }
+
+    //sub orders ada isinya
     setSubOrders((prevValue) => [
       ...prevValue,
       {
@@ -179,9 +194,17 @@ export default function AddOrder() {
     setTotalPrice(total);
   };
 
+  const onChangeMoney = () => {
+    if (inputMoney.current.value - totalPrice < 0) {
+      kembalian.current.value = "Rp. 0";
+    } else {
+      kembalian.current.value = formatRupiah(inputMoney.current.value - totalPrice, "Rp. ");
+    }
+  };
+
   return (
     <MasterLayout>
-      <div className="container">
+      <div className="container text-white pb-3">
         <form>
           <div className="mb-3">
             <label htmlFor="exampleDataList" className="form-label fw-bold">
@@ -195,21 +218,21 @@ export default function AddOrder() {
             </datalist>
             <p className="mt-1">
               Customer belum terdaftar ?{" "}
-              <button className="m-0 p-0 border-0 bg-transparent link-primary text-decoration-underline" data-bs-toggle="modal" data-bs-target="#add-customer-modal">
+              <span style={{ cursor: "pointer" }} className="m-0 p-0 border-0 bg-transparent text-info text-decoration-underline" data-bs-toggle="modal" data-bs-target="#add-customer-modal">
                 Daftar disini
-              </button>
+              </span>
             </p>
           </div>
           {subOrders.map((index) => (
             <SubOrder calculateTotalPrice={calculateTotalPrice} formatRupiah={formatRupiah} index={index.id} subOrders={subOrders} categories={categories} key={index.id} />
           ))}
           <div className="d-flex justify-content-end gap-2">
-            <button className="btn btn-danger my-2 fw-bold" onClick={deleteSubOrder}>
+            <div className="btn button-accent-purple my-2 fw-bold w-50" onClick={deleteSubOrder}>
               <i className="me-1 bi bi-dash-circle"></i> Hapus Layanan
-            </button>
-            <button className="btn btn-primary my-2 fw-bold" onClick={addSubOrder}>
+            </div>
+            <div className="btn button-accent-purple my-2 fw-bold w-50" onClick={addSubOrder}>
               <i className="me-1 bi bi-plus-circle"></i> Tambah Layanan
-            </button>
+            </div>
           </div>
 
           <div className="catatan">
@@ -221,16 +244,31 @@ export default function AddOrder() {
               <label htmlFor="floatingTextarea">Catatan</label>
             </div>
           </div>
+          <div className="row">
+            <div className="mb-3 col-6">
+              <label for="input-money" className="form-label fw-bold">
+                Uang
+              </label>
+              <input ref={inputMoney} onChange={onChangeMoney} type="number" className="form-control" id="input-money" />
+            </div>
+            <div className="mb-3 col-6">
+              <p className="form-label fw-bold" id="change">
+                Kembalian
+              </p>
+              <input ref={kembalian} class="form-control fw-semibold" id="disabledInput" type="text" placeholder="Kembalian" disabled />
+            </div>
+          </div>
+
           <div className="status d-flex mb-3">
-            <span ref={paymentStatus} className="bg-danger flex-grow-1 p-2 rounded py-1 fw-bold text-white shadow-sm border border-1 text-center" onClick={togglePaymentStatus}>
+            <span style={{ cursor: "pointer" }} ref={paymentStatus} className="bg-danger flex-grow-1 p-2 rounded py-1 fw-bold text-white shadow-sm border border-1 text-center" onClick={togglePaymentStatus}>
               Belum bayar
             </span>
           </div>
-          <div className="mb-3 fw-bold fs-4 text-center text-black">Total : {formatRupiah(Math.ceil(totalPrice), "Rp. ")}</div>
+          <div className="mb-3 fw-bold fs-4 text-center text-white">Total : {formatRupiah(Math.ceil(totalPrice), "Rp. ")}</div>
           <div>
-            <button type="submit" onClick={handleAddOrder} className="btn btn-primary w-100 rounded-pill">
-              Submit
-            </button>
+            <div type="submit" onClick={handleAddOrder} className="btn btn-primary w-100 rounded-pill fw-semibold shadow-sm">
+              Tambah Orderan
+            </div>
           </div>
         </form>
       </div>
@@ -267,11 +305,11 @@ export default function AddOrder() {
                 </div>
               </div>
               <div className="modal-footer d-flex flex-column">
-                <button ref={buttonDismissCreateCustomerModal} type="button" className="btn btn-danger w-100" data-bs-dismiss="modal">
-                  Batalkan
-                </button>
-                <button onClick={createCustomer} type="button" className="btn btn-primary w-100">
+                <button onClick={createCustomer} type="button" className="btn button-accent-purple w-100 fw-semibold">
                   Daftar Customer Baru!
+                </button>
+                <button ref={buttonDismissCreateCustomerModal} type="button" className="btn button-accent-purple w-100 fw-semibold" data-bs-dismiss="modal">
+                  Batalkan
                 </button>
               </div>
             </form>

@@ -15,9 +15,9 @@ export default function SubOrder({ calculateTotalPrice, formatRupiah, subOrders,
   function handleCategoryChange() {
     const chosenCategory = categories.find((eachCategory) => parseInt(eachCategory.id) === parseInt(category.current.value));
 
-    if (!chosenCategory || !weightInKg.current.value) return setTotalSubPrice(0);
-
     setChosenCategory(chosenCategory);
+
+    if (!chosenCategory || !weightInKg.current.value) return setTotalSubPrice(0);
 
     let subOrder = subOrders.find((eachOrder) => eachOrder.id === index);
     subOrder.jenisLaundry = chosenCategory.title;
@@ -41,7 +41,7 @@ export default function SubOrder({ calculateTotalPrice, formatRupiah, subOrders,
   }
 
   return (
-    <div id={index} key={index} style={{ background: "#eaeaea" }} className="p-3 mb-3 rounded shadow pt-3 pb-4">
+    <div id={index} key={index} style={{ background: "#eaeaea" }} className="p-3 mb-3 rounded shadow pt-3 pb-4 text-black">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <label htmlFor="category" className="fw-bold">
           Jenis Layanan
@@ -57,7 +57,7 @@ export default function SubOrder({ calculateTotalPrice, formatRupiah, subOrders,
         ))}
       </select>
 
-      {chosenCategory?.is_price_per_unit !== parseInt(1) ? <InputBerat weightInKg={weightInKg} handleCategoryChange={handleCategoryChange} /> : <InputUnit weightInKg={weightInKg} handleCategoryChange={handleCategoryChange} />}
+      {parseInt(chosenCategory?.is_price_per_unit) !== parseInt(1) ? <InputBerat weightInKg={weightInKg} handleCategoryChange={handleCategoryChange} /> : <InputUnit weightInKg={weightInKg} handleCategoryChange={handleCategoryChange} />}
 
       <div>Total Sub Price : {formatRupiah(Math.ceil(totalSubPrice), "Rp. ")}</div>
     </div>

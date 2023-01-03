@@ -21,6 +21,9 @@ class AuthenticationController extends Controller
         $validated = $request->validate([
             "email" => "string|required",
             "password" => "string|required"
+        ], [
+            "email.string" => "Email harus diisi",
+            "password.string" => "Password harus diisi"
         ]);
 
         $user = User::firstWhere("email", $validated['email']);

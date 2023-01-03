@@ -2,62 +2,86 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import MasterLayout from "../layouts/MasterLayout";
 import { apiBaseUrl } from "../provider/ApiService";
-import Order from "../components/Order";
-import { useNavigate } from "react-router-dom";
-import Cookies from "universal-cookie";
-import { toast } from "react-toastify";
 
 export default function Dashboard() {
-  const [orders, setOrders] = useState([]);
-  const navigate = useNavigate();
+  const [priceList, setPriceList] = useState([]);
 
   useEffect(() => {
-    checkMiddleware();
-    fetchOrders();
+    fetchCategories();
   }, []);
 
-  function checkMiddleware() {
+  const fetchCategories = () => {
     axios
-      .get(apiBaseUrl("/auth/users"), {
-        headers: {
-          Authorization: new Cookies().get("token"),
-        },
+      .get(apiBaseUrl("/categories"))
+      .then((response) => {
+        setPriceList(response.data.categories);
       })
       .catch((error) => {
-        if (error?.response?.data?.message === "Unauthenticated.") {
-          new Cookies().remove("token");
-          navigate("/");
-        }
+        console.log(error.response.data);
       });
-  }
+  };
 
-  async function fetchOrders() {
-    const response = await axios.get(apiBaseUrl("/orders"));
-    console.log(response.data.orders);
-    setOrders(response.data.orders);
-  }
+  function formatRupiah(angka, prefix) {
+    angka = angka.toString();
+    var number_string = angka.replace(/[^,\d]/g, "").toString(),
+      split = number_string.split(","),
+      sisa = split[0].length % 3,
+      rupiah = split[0].substr(0, sisa),
+      ribuan = split[0].substr(sisa).match(/\d{3}/gi);
 
-  function handleAddOrder() {
-    navigate("/orders/add");
+    // tambahkan titik jika yang di input sudah menjadi angka ribuan
+    if (ribuan) {
+      let separator = sisa ? "." : "";
+      rupiah += separator + ribuan.join(".");
+    }
+
+    rupiah = split[1] !== undefined ? rupiah + "," + split[1] : rupiah;
+    return prefix === undefined ? rupiah : rupiah ? "Rp. " + rupiah : "";
   }
 
   return (
     <MasterLayout>
-      <div className="container orders">
-        <div className="title fw-bold fs-4 text-center text-black mb-3">Antrian Customer</div>
-        <div className="mb-3">
-          <input type="text" className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Search..." />
-        </div>
+      <div className="container text-white">
+        <section className="hero rounded-pill mb-5 px-3 d-flex justify-content-center align-items-center flex-column">
+          <h1 className="fw-bold text-center mb-4 fs-1">Cinta Laundry</h1>
+          <img src="/logo.jpg" className="cinta-laundry-logo img-fluid rounded-pill" style={{ objectFit: "cover" }} alt="Logo Cinta Laundry" />
+        </section>
 
-        {new Cookies().get("token") && (
-          <button className="btn btn-primary w-100 mb-3 fw-bold" onClick={handleAddOrder}>
-            Tambah Order
-          </button>
-        )}
+        <section className="deskripsi px-3" style={{ textAlign: "justify" }}>
+          <p className="text-center fw-bold">Selamat datang Cinta Laundry!</p>
+          <p>Kami merupakan usaha laundry profesional yang menyediakan layanan cuci, setrika, dan pengemasan pakaian dengan kualitas terbaik. Kami menggunakan mesin cuci dan setrika terbaik serta deterjen yang aman untuk kulit dan lingkungan.</p>
+          <p>Bagi Anda yang sibuk dengan kegiatan sehari-hari, jangan khawatir! layanan laundry kami sangat cocok untuk membantu anda menghemat waktu dan tenaga. Jika Anda memiliki pertanyaan atau ingin memesan layanan kami, silakan hubungi kami melalui nomor kontak (Whatsapp) yang tersedia di bagian bawah halaman ini. Kami dengan senang hati akan menjawab pertanyaan Anda dan membantu Anda sesuai dengan kebutuhan yang anda inginkan.</p>
+        </section>
 
-        {orders?.map((order) => (
-          <Order key={order.id} order={order} />
-        ))}
+        <section className="price-list">
+          <h1 className="text-center mt-3 fw-bold mb-3">Price List</h1>
+          <table className="table table-striped shadow rounded overflow-hidden">
+            <thead className="bg-secondary text-white">
+              <tr>
+                <th className="p-2 text-center">#</th>
+                <th className="p-2">Layanan</th>
+                <th className="p-2">Harga</th>
+              </tr>
+            </thead>
+            <tbody>
+              {priceList.map((category, index) => {
+                return (
+                  <tr key={index + 1} className="table-light fw-semibold">
+                    <td className="text-center">{category.id}</td>
+                    <td>{category.title}</td>
+                    <td>{formatRupiah(category.price, "Rp. ") + (category.price_per_multiplied_kg ? ` / ${category.price_per_multiplied_kg} KG` : parseInt(category.is_price_per_unit) === 1 ? " / Unit" : " / KG")}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </section>
+
+        <section className="kiosk-photo">Foto Kios</section>
+
+        <section className="address">Alamat : Kota Sutera Cluster BlossomVille Blok B7/20 Atau Taman Nuri Blok NC1/32</section>
+
+        <section className="contact-us">Contact</section>
       </div>
     </MasterLayout>
   );

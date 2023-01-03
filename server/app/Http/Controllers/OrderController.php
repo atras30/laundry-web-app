@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Order;
 use App\Models\SubOrder;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Validator;
 
 class OrderController extends Controller
 {
@@ -73,19 +75,46 @@ class OrderController extends Controller
             "notes" => "present",
             "payment_status" => "required|string",
             "price" => "required|numeric"
+        ], [
+            'customer_id.required' => 'Anda belum memilih Customer!',
         ]);
+
+        $subOrders = json_decode($validated['orders']);
+        if (count($subOrders) == 0) {
+            return Response()->json([
+                "message" => "Jenis layanan minimal harus ada satu",
+            ], Response::HTTP_NOT_ACCEPTABLE);
+        }
 
         if (!$validated['notes']) $validated['notes'] = "";
         $order = Order::create($validated);
 
-        $subOrders = json_decode($validated['orders']);
         foreach ($subOrders as $subOrder) {
+            $validator = Validator::make(collect($subOrder)->toArray(), [
+                "jenisLaundry" => "required",
+                "jumlah" => "required",
+                "hargaPerKilo" => "present",
+                "subTotal" => "present",
+            ], [
+                "jenisLaundry.required" => "Jenis Layanan dan Berat harus diisi",
+                "jumlah.required" => "Jumlah harus diisi",
+            ]);
+
+            if ($validator->fails()) {
+                return Response()->json([
+                    "message" => $validator->errors()->first(),
+                ], Response::HTTP_NOT_ACCEPTABLE);
+            }
+
+            $validated = $validator->validated();
+
             SubOrder::create([
                 "order_id" => $order->id,
-                "type" => $subOrder->jenisLaundry,
-                "price_per_kg" => $subOrder->hargaPerKilo,
-                "amount" => $subOrder->jumlah,
-                "total" => $subOrder->subTotal,
+                "type" => $validated['jenisLaundry'],
+                "price_per_kg" => $validated['hargaPerKilo'],
+                "is_price_per_unit" => Category::firstWhere("title", $validated['jenisLaundry'])->is_price_per_unit,
+                "amount" => $validated['jumlah'],
+                "total" => $validated['subTotal'],
             ]);
         }
 

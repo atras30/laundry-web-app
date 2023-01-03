@@ -10,6 +10,8 @@ import Dashboard from "./pages/Dashboard";
 import { ToastContainer } from "react-toastify";
 import AddOrder from "./pages/AddOrder";
 import DetailOrder from "./pages/DetailOrder";
+import OrderHistory from "./pages/OrderHistory";
+import "./styles/global.css";
 
 export default function App() {
   useEffect(() => {
@@ -23,7 +25,8 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Dashboard />}></Route>
           <Route path="/login" element={<Login />}></Route>
-          <Route path="/admin" element={<Admin />}></Route>
+          <Route path="/admin" element={<OrderHistory />}></Route>
+          <Route path="/admin/customers" element={<Admin />}></Route>
           <Route path="/orders/add" element={<AddOrder />}></Route>
           <Route path="/orders" element={<DetailOrder />}></Route>
         </Routes>

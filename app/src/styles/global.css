@@ -1,0 +1,52 @@
+.purple-gradient-background {
+  background: rgb(71, 46, 178);
+  background: linear-gradient(180deg, rgba(71, 46, 178, 1) 0%, rgba(191, 107, 212, 1) 100%);
+}
+
+.cinta-laundry-logo {
+  box-shadow: 0 0 0.2rem #fff, 0 0 0.2rem #fff, 0 0 2rem #bc13fe, 0 0 0.8rem #bc13fe, 0 0 2.8rem #bc13fe, inset 0 0 1.3rem #bc13fe;
+}
+
+.navbar-background {
+  background-color: #da9eff;
+}
+
+.button-accent-purple {
+  background-color: #da9eff;
+}
+
+.button-accent-purple:hover {
+  background-color: #9d00ff;
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.purple-100 {
+  background-color: #bf6bd4;
+}
+.purple-200 {
+  background-color: #a55ecb;
+}
+.purple-300 {
+  background-color: #804fcc;
+}
+.purple-400 {
+  background-color: #7647be;
+}
+.blue-100 {
+  background-color: #73c7f7;
+}
+.dark-blue-100 {
+  background-color: #472eb2;
+}
+.dark-blue-200 {
+  background-color: #3262a0;
+}
+
+.light-white {
+  background-color: #e1ecf9;
+}
+
+.blue-300 {
+  background-color: #6b86b0;
+}
