@@ -21,26 +21,23 @@ export default function NavbarAdmin() {
         }
       )
       .then((response) => {
-        new Cookies().remove("token");
         toast.success("Logout berhasil.");
-        navigate("/login");
       })
       .catch((error) => {
-        console.log("TEST");
-        toast.error(error.response.data.message);
-        if (error.response.data.message === "Unauthenticated.") {
-          new Cookies().remove("token");
-          navigate("/login");
-        }
+        toast.error("Error, " + error.response.data.message);
+      })
+      .finally(() => {
+        new Cookies().remove("token");
+        navigate("/login");
       });
   }
 
   return (
     <nav className="navbar mb-3 navbar-expand-lg position-relative shadow-sm navbar-background">
       <div className="container-fluid px-4">
-        <Link className="navbar-brand fw-semibold" to="/">
+        <Link className="navbar-brand text-white fw-semibold" to="/">
           <img className="rounded-pill me-2" style={{ width: "30px", height: "30px" }} src="/logo.jpg" alt="Cinta Laundry Logo" />
-          <b className="text-danger">Admin</b> Cinta laundry
+          Admin
         </Link>
         <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <span className="navbar-toggler-icon"></span>
@@ -48,17 +45,17 @@ export default function NavbarAdmin() {
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
           <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
             <li className="nav-item">
-              <Link className="nav-link active" to="/admin">
+              <Link className="text-white nav-link active" to="/admin">
                 Daftar Order
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link active" to="/admin/customers">
+              <Link className="text-white nav-link active" to="/admin/customers">
                 Daftar Customer
               </Link>
             </li>
             <li className="nav-item">
-              <span className="nav-link active" onClick={handleLogout} style={{ cursor: "pointer" }}>
+              <span className="nav-link active text-white" onClick={handleLogout} style={{ cursor: "pointer" }}>
                 Logout
               </span>
             </li>

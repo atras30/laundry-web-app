@@ -12,7 +12,7 @@ export default function Customer({ customer }) {
         <p className="card-text m-2 mt-0">Alamat : {customer.address}</p>
         <p className="card-text m-2">Nomor HP : {customer.phone_number}</p>
         <p className="card-text m-2">Saldo : Rp. {customer.balance}</p>
-        <button className="btn btn-success w-100 fw-bold" onClick={redirectToWhatsapp}>
+        <button className="btn btn-success w-100 fw-bold rounded-pill" onClick={redirectToWhatsapp}>
           <i className="bi bi-whatsapp me-2"></i>Chat Whatsapp
         </button>
       </div>

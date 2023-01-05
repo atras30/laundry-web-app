@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import axios from "axios";
 import { HashRouter, Routes, Route, Link } from "react-router-dom";
 import Login from "./pages/Login";
-import Admin from "./pages/Admin";
+import Customers from "./pages/Customers";
 import Dashboard from "./pages/Dashboard";
 import { ToastContainer } from "react-toastify";
 import AddOrder from "./pages/AddOrder";
@@ -15,8 +15,11 @@ import "./styles/global.css";
 
 export default function App() {
   useEffect(() => {
-    axios.defaults.withCredentials = true;
+    // Bootstrap javascript import
     require("bootstrap/dist/js/bootstrap.bundle.min.js");
+
+    // axios default configurations
+    axios.defaults.withCredentials = true;
   }, []);
 
   return (
@@ -26,7 +29,7 @@ export default function App() {
           <Route path="/" element={<Dashboard />}></Route>
           <Route path="/login" element={<Login />}></Route>
           <Route path="/admin" element={<OrderHistory />}></Route>
-          <Route path="/admin/customers" element={<Admin />}></Route>
+          <Route path="/admin/customers" element={<Customers />}></Route>
           <Route path="/orders/add" element={<AddOrder />}></Route>
           <Route path="/orders" element={<DetailOrder />}></Route>
         </Routes>

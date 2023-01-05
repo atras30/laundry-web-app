@@ -22,8 +22,8 @@ export default function DetailSubOrder({ subOrder }) {
   }
 
   return (
-    <table class="table table-bordered table-striped shadow-sm text-center rounded overflow-hidden">
-      <thead class="table-dark">
+    <table className="table table-bordered table-striped shadow-sm text-center rounded overflow-hidden">
+      <thead className="purple-300 text-white">
         <tr>
           <th colSpan={4}>{subOrder.type}</th>
           {console.log(subOrder)}
@@ -31,13 +31,17 @@ export default function DetailSubOrder({ subOrder }) {
       </thead>
       <tbody>
         <tr>
-          <td>Harga</td>
+          <td className="fw-bold">Harga</td>
           <td>
-            {formatRupiah(subOrder.price_per_kg, "Rp. ")} {+parseInt(subOrder.is_price_per_unit) === 1 ? " / Unit" : " / KG"}
+            {formatRupiah(subOrder.price_per_kg, "Rp. ")} {+parseInt(subOrder.is_price_per_unit) === 1 ? " / Unit" : subOrder?.price_per_multiplied_kg ? ` / ${subOrder?.price_per_multiplied_kg} KG` : " / KG"}
           </td>
         </tr>
         <tr>
-          <td>Sub Total</td>
+          <td className="fw-bold">Jumlah</td>
+          <td>{subOrder.amount}</td>
+        </tr>
+        <tr>
+          <td className="fw-bold">Sub Total</td>
           <td>{formatRupiah(subOrder.total, "Rp. ")}</td>
         </tr>
       </tbody>

@@ -1,6 +1,19 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat&display=swap");
+body {
+  font-family: "Montserrat", sans-serif;
+  font-size: 1.1rem;
+}
+*,
+*:after,
+*:before {
+  margin: 0;
+  padding: 0;
+}
+
 .purple-gradient-background {
   background: rgb(71, 46, 178);
-  background: linear-gradient(180deg, rgba(71, 46, 178, 1) 0%, rgba(191, 107, 212, 1) 100%);
+  /* background: linear-gradient(180deg, rgba(71, 46, 178, 1) 0%, rgb(218, 70, 255) 100%); */
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.01) 0%, rgba(255, 255, 255, 0.2) 50%, rgb(240, 165, 255) 100%), radial-gradient(ellipse at top left, rgba(13, 110, 253, 0.5), transparent 50%), radial-gradient(ellipse at top right, rgba(255, 228, 132, 0.5), transparent 50%), radial-gradient(ellipse at center right, rgba(112.520718, 44.062154, 249.437846, 0.5), transparent 50%), radial-gradient(ellipse at center left, rgba(214, 51, 132, 0.5), transparent 50%);
 }
 
 .cinta-laundry-logo {
@@ -8,17 +21,35 @@
 }
 
 .navbar-background {
-  background-color: #da9eff;
+  background-color: #7533f9;
 }
 
 .button-accent-purple {
-  background-color: #da9eff;
+  background-color: #9815ea;
+  color: white;
+  border-radius: 10em;
+}
+.button-accent-purple:active {
+  background-color: #9815ea !important;
+}
+.button-accent-purple:focus {
+  background-color: #da9eff !important;
 }
 
 .button-accent-purple:hover {
-  background-color: #9d00ff;
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  background-color: #da9eff;
+  border: 1px solid rgba(0, 0, 0, 0.4);
+}
+
+.light-grey {
+  background-color: #ecedee;
+}
+
+.light-grey-background {
+  /* background-color: rgb(236, 237, 238); */
+  /* background-color: #c754ff99; */
+  /* background-color: #ff00fc80; */
+  background-color: #7f00a080;
 }
 
 .purple-100 {
@@ -43,10 +74,10 @@
   background-color: #3262a0;
 }
 
-.light-white {
-  background-color: #e1ecf9;
-}
-
 .blue-300 {
   background-color: #6b86b0;
+}
+
+.light-white {
+  background-color: #e1ecf9;
 }

@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import InputBerat from "../components/InputBerat";
 import InputUnit from "../components/InputUnit";
+import { formatRupiah } from "../helper/helper";
 
-export default function SubOrder({ calculateTotalPrice, formatRupiah, subOrders, index, categories }) {
+export default function SubOrder({ calculateTotalPrice, subOrders, index, categories }) {
   const [chosenCategory, setChosenCategory] = useState([]);
   const [totalSubPrice, setTotalSubPrice] = useState(0);
   const weightInKg = useRef(null);
@@ -41,7 +42,7 @@ export default function SubOrder({ calculateTotalPrice, formatRupiah, subOrders,
   }
 
   return (
-    <div id={index} key={index} style={{ background: "#eaeaea" }} className="p-3 mb-3 rounded shadow pt-3 pb-4 text-black">
+    <div id={index} key={index} className="p-3 mb-3 light-grey rounded shadow pt-3 pb-4 text-black">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <label htmlFor="category" className="fw-bold">
           Jenis Layanan
@@ -52,7 +53,7 @@ export default function SubOrder({ calculateTotalPrice, formatRupiah, subOrders,
         <option>Pilih Jenis Laundry</option>
         {categories?.map((category) => (
           <option key={category.id} value={category.id}>
-            {category.title} - {category.price} {category.price_per_multiplied_kg ? `/ ${category.price_per_multiplied_kg} KG` : ""}
+            {category.title} - {`${formatRupiah(category.price, "Rp. ")} ${parseInt(category.is_price_per_unit) === 1 ? " / Unit" : category?.price_per_multiplied_kg ? ` / ${category?.price_per_multiplied_kg} KG` : " / KG"}`}
           </option>
         ))}
       </select>

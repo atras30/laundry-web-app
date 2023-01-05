@@ -23,6 +23,7 @@ return new class extends Migration
             $table->unsignedInteger("price_per_kg");
             $table->string("amount");
             $table->boolean("is_price_per_unit")->default(false);
+            $table->integer("price_per_multiplied_kg")->nullable();
             $table->unsignedInteger("total");
             $table->timestamps();
         });

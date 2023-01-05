@@ -53,9 +53,9 @@ export default function OrderHistory() {
   return (
     <MasterLayout>
       <div className="container orders">
-        <div className="title fw-bold fs-4 text-center text-white mb-3">Antrian Customer</div>
+        <div className="title fw-bold fs-4 text-center mb-3">Antrian Customer</div>
         <div className="mb-3">
-          <input onChange={handleInputCustomerChange} type="text" ref={inputCustomerName} className="form-control" placeholder="Masukkan nama customer..." />
+          <input onChange={handleInputCustomerChange} type="text" ref={inputCustomerName} className="form-control bg-light rounded-pill" placeholder="Masukkan nama customer..." />
         </div>
 
         {new Cookies().get("token") && (

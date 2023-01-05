@@ -17,7 +17,7 @@ export default function Order({ order }) {
   }
 
   return (
-    <div className="card text-center mb-3" onClick={handleRedirect}>
+    <div className="card text-center mb-3" style={{ cursor: "pointer" }} onClick={handleRedirect}>
       <div className="card-body text-start m-0 p-0">
         <h5 className="card-header fw-bold text-center rounded-top p-2 border-2 border-black border-bottom">{order?.customer.name}</h5>
 
@@ -31,6 +31,7 @@ export default function Order({ order }) {
               </tr>
 
               <td colSpan={3} className="pt-3 pb-1">
+                {console.log(order)}
                 {order?.sub_orders?.map((subOrder) => (
                   <DetailSubOrder key={subOrder.id} subOrder={subOrder} />
                 ))}
@@ -52,7 +53,7 @@ export default function Order({ order }) {
                 <td className="fw-bold">Status</td>
                 <td className="px-2">:</td>
                 <td>
-                  <span className={`${order?.status === "Sedang dikerjakan" ? "bg-primary" : order?.status === "Selesai" ? "bg-success" : order?.status === "Menunggu diambil" ? "bg-danger" : ""} p-3 rounded py-0 text-white fw-bold d-flex justify-content-center align-items-center`}>{order?.status}</span>
+                  <span className={`mb-1 ${order?.status === "Sedang dikerjakan" ? "bg-primary" : order?.status === "Selesai" ? "bg-success" : order?.status === "Menunggu diambil" ? "bg-danger" : ""} p-3 rounded py-0 text-white fw-bold d-flex justify-content-center align-items-center`}>{order?.status}</span>
                 </td>
               </tr>
 

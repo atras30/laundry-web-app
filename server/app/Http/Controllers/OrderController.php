@@ -13,7 +13,7 @@ class OrderController extends Controller
 {
     public function getAllOrders()
     {
-        $orders = Order::with("customer")->get()->sortByDesc("created_at")->values();
+        $orders = Order::with("customer")->with("subOrders")->get()->sortByDesc("created_at")->values();
 
         // dd($orders);
 
@@ -113,6 +113,7 @@ class OrderController extends Controller
                 "type" => $validated['jenisLaundry'],
                 "price_per_kg" => $validated['hargaPerKilo'],
                 "is_price_per_unit" => Category::firstWhere("title", $validated['jenisLaundry'])->is_price_per_unit,
+                "price_per_multiplied_kg" => Category::firstWhere("title", $validated['jenisLaundry'])->price_per_multiplied_kg,
                 "amount" => $validated['jumlah'],
                 "total" => $validated['subTotal'],
             ]);

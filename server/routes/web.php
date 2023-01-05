@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthenticationController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,3 +17,6 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get("/auth/login/google", [AuthenticationController::class, "loginByGooglePage"]);
+Route::get("/auth/login/google/redirect", [AuthenticationController::class, "loginByGoogle"]);

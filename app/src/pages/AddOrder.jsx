@@ -204,7 +204,7 @@ export default function AddOrder() {
 
   return (
     <MasterLayout>
-      <div className="container text-white pb-3">
+      <div className="container pb-3">
         <form>
           <div className="mb-3">
             <label htmlFor="exampleDataList" className="form-label fw-bold">
@@ -218,7 +218,7 @@ export default function AddOrder() {
             </datalist>
             <p className="mt-1">
               Customer belum terdaftar ?{" "}
-              <span style={{ cursor: "pointer" }} className="m-0 p-0 border-0 bg-transparent text-info text-decoration-underline" data-bs-toggle="modal" data-bs-target="#add-customer-modal">
+              <span style={{ cursor: "pointer" }} className="m-0 p-0 border-0 bg-transparent link-primary text-decoration-underline" data-bs-toggle="modal" data-bs-target="#add-customer-modal">
                 Daftar disini
               </span>
             </p>
@@ -255,7 +255,7 @@ export default function AddOrder() {
               <p className="form-label fw-bold" id="change">
                 Kembalian
               </p>
-              <input ref={kembalian} class="form-control fw-semibold" id="disabledInput" type="text" placeholder="Kembalian" disabled />
+              <input ref={kembalian} className="form-control fw-semibold" id="disabledInput" type="text" placeholder="Kembalian" disabled />
             </div>
           </div>
 
@@ -264,9 +264,9 @@ export default function AddOrder() {
               Belum bayar
             </span>
           </div>
-          <div className="mb-3 fw-bold fs-4 text-center text-white">Total : {formatRupiah(Math.ceil(totalPrice), "Rp. ")}</div>
+          <div className="mb-3 fw-bold fs-4 text-center">Total : {formatRupiah(Math.ceil(totalPrice), "Rp. ")}</div>
           <div>
-            <div type="submit" onClick={handleAddOrder} className="btn btn-primary w-100 rounded-pill fw-semibold shadow-sm">
+            <div type="submit" onClick={handleAddOrder} className="btn button-accent-purple w-100 rounded-pill fw-semibold shadow-sm">
               Tambah Orderan
             </div>
           </div>

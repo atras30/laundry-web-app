@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Laravel\Socialite\Facades\Socialite;
 
 class AuthenticationController extends Controller
 {
@@ -14,6 +16,21 @@ class AuthenticationController extends Controller
         return response()->json([
             "user" => auth()->user()
         ], Response::HTTP_OK);
+    }
+
+    public function loginByGoogle(Request $request)
+    {
+        $user = Socialite::driver('google')->user();
+
+        $user = User::where("email", $user->user['email'])->first();
+
+        if (!$user) {
+            return view("login.google");
+        }
+
+        $token = $user->createToken("login token")->plainTextToken;
+
+        return redirect(env("APP_CLIENT_URL") . "/#/?token={$token}");
     }
 
     public function login(Request $request)
@@ -47,5 +64,10 @@ class AuthenticationController extends Controller
     public function logout()
     {
         auth()->user()->tokens()->delete();
+    }
+
+    public function loginByGooglePage()
+    {
+        return Socialite::driver('google')->redirect();
     }
 }
