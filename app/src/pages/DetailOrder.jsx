@@ -310,6 +310,9 @@ export default function DetailOrder() {
                   <a className="btn btn-primary rounded-pill" href={`intent:#Intent;scheme=startci://open?url_param=${order?.id};package=com.project.cintalaundry;S.browser_fallback_url=${encodeURIComponent("https://cintalaundry.atras.my.id/#/not_found")};end`}>
                     <i className="bi bi-printer"></i> Cetak Struk
                   </a>
+                  <a className="btn btn-primary rounded-pill" href={`laundryprojectprinter://printer?uuid=${order?.id}`}>
+                    <i className="bi bi-printer"></i> Cetak Struk (Flutter)
+                  </a>
 
                   <button className="btn btn-danger rounded-pill w-100 mb-4" data-bs-toggle="modal" data-bs-target="#delete-modal">
                     <i className="bi bi-trash"></i> Hapus Pesanan
