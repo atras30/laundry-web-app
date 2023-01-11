@@ -3,7 +3,7 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import "react-toastify/dist/ReactToastify.css";
 import { useEffect } from "react";
 import axios from "axios";
-import { HashRouter, Routes, Route, Link } from "react-router-dom";
+import { HashRouter, Routes, Route, Switch, Link } from "react-router-dom";
 import Login from "./pages/Login";
 import Customers from "./pages/Customers";
 import Dashboard from "./pages/Dashboard";
@@ -12,6 +12,7 @@ import AddOrder from "./pages/AddOrder";
 import DetailOrder from "./pages/DetailOrder";
 import OrderHistory from "./pages/OrderHistory";
 import "./styles/global.css";
+import ApplicationNotFound from "./pages/ApplicationNotFound";
 
 export default function App() {
   useEffect(() => {
@@ -32,6 +33,7 @@ export default function App() {
           <Route path="/admin/customers" element={<Customers />}></Route>
           <Route path="/orders/add" element={<AddOrder />}></Route>
           <Route path="/orders" element={<DetailOrder />}></Route>
+          <Route path="/not_found" element={<ApplicationNotFound />}></Route>
         </Routes>
       </HashRouter>
       <ToastContainer />

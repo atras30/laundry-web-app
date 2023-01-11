@@ -16,6 +16,31 @@ class CustomerController extends Controller
         ], Response::HTTP_OK);
     }
 
+    public function getCustomerById($id)
+    {
+        return response()->json([
+            "message" => "Successfully fetched one customers",
+            "customer" => Customer::findOrFail($id)
+        ], Response::HTTP_OK);
+    }
+
+    public function editCustomerById(Request $request, $id)
+    {
+        $validated = $request->validate([
+            "name" => "required|string",
+            "address" => "required|string",
+            "phone_number" => "required|string",
+        ]);
+
+        $customer = Customer::findOrFail($id);
+
+        $customer->update($validated);
+
+        return response()->json([
+            "message" => "Data customer berhasil diubah",
+        ], Response::HTTP_OK);
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([

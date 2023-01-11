@@ -1,10 +1,9 @@
-package umn.ac.id.project.maggot.retrofit;
+package com.project.cintalaundry.retrofit;
 
 import com.google.gson.Gson;
 
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-import umn.ac.id.project.maggot.model.AuthenticationModel;
 
 public class ApiService {
     public static String localhost = "http://10.0.2.2:8000/api/";
@@ -13,8 +12,8 @@ public class ApiService {
     public static String sharedhosting = "https://atras.my.id/api/";
     public static String sharedhostingWithoutApiPath = "https://atras.my.id/";
 
-    public static String production = "https://magfin-api.lppmumn.id/public/api/";
-    public static String productionWithoutApiPath = "https://magfin-api.lppmumn.id/public/";
+    public static String production = "https://api.cintalaundry.atras.my.id/api/";
+    public static String productionWithoutApiPath = "https://api.cintalaundry.atras.my.id/";
 
     private static String BASE_URL = production;
     private static String BASE_URL_WITHOUT_API_PATH = productionWithoutApiPath;
@@ -39,6 +38,6 @@ public class ApiService {
     }
 
     public static String parseErrorMessage(String jsonErrorMessage) {
-        return new Gson().fromJson(jsonErrorMessage, AuthenticationModel.ErrorHandler.class).getMessage();
+        return new Gson().fromJson(jsonErrorMessage, ApiErrorHandler.class).getMessage();
     }
 }

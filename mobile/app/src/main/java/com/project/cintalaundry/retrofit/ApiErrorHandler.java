@@ -1,4 +1,4 @@
-package umn.ac.id.project.maggot.retrofit;
+package com.project.cintalaundry.retrofit;
 
 import com.google.gson.Gson;
 

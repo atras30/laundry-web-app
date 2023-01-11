@@ -13,9 +13,28 @@ class OrderController extends Controller
 {
     public function getAllOrders()
     {
-        $orders = Order::with("customer")->with("subOrders")->get()->sortByDesc("created_at")->values();
+        $orders = Order::with("customer")->with("sub_orders")->get()->sortByDesc("created_at")->values();
 
-        // dd($orders);
+        foreach ($orders as $order) {
+            foreach ($order->sub_orders as $sub_order) {
+                $priceText = "";
+                $category = Category::firstWhere("title", $sub_order->type);
+                $priceText = "Rp " . number_format($category->price, 0, ',', '.');
+
+                if ($category->price_per_multiplied_kg) {
+                    $priceText .= " / {$category->price_per_multiplied_kg} KG";
+                } else if ($category->is_price_per_unit) {
+                    $priceText .= " / Unit";
+                } else if ($category->is_price_per_set) {
+                    $priceText .= " / Set";
+                } else {
+                    $priceText .= " / KG";
+                }
+
+                $sub_order->price_text = $priceText;
+                $sub_order->total_text = "Rp " . number_format($sub_order->total, 0, ',', '.');
+            }
+        }
 
         return Response()->json([
             "message" => "Successfully fetched orders.",
@@ -25,11 +44,31 @@ class OrderController extends Controller
 
     public function getOrderById($id)
     {
-        $orders = Order::with("customer", "subOrders")->where("id", $id)->get()->first();
+        $order = Order::with("customer", "sub_orders")->where("id", $id)->get()->first();
+
+        foreach ($order->sub_orders as $sub_order) {
+            $priceText = "";
+            $category = Category::firstWhere("title", $sub_order->type);
+            $priceText = "Rp " . number_format($category->price, 0, ',', '.');
+
+            if ($category->price_per_multiplied_kg) {
+                $priceText .= " / {$category->price_per_multiplied_kg} KG";
+            } else if ($category->is_price_per_unit) {
+                $priceText .= " / Unit";
+            } else if ($category->is_price_per_set) {
+                $priceText .= " / Set";
+            } else {
+                $priceText .= " / KG";
+            }
+
+            $sub_order->price_text = $priceText;
+            $sub_order->total_text = "Rp " . number_format($sub_order->total, 0, ',', '.');
+        }
+
 
         return Response()->json([
             "message" => "Berhasil mengambil order.",
-            "order" => $orders
+            "order" => $order
         ], Response::HTTP_OK);
     }
 
@@ -64,6 +103,24 @@ class OrderController extends Controller
 
         return Response()->json([
             "message" => "Berhasil mengubah status pembayaran.",
+        ], Response::HTTP_CREATED);
+    }
+
+    public function updateNotes(Request $request, $id)
+    {
+        $order = Order::findOrFail($id);
+
+        $notes = $request->notes;
+
+        if (!$notes) {
+            $notes = "";
+        }
+
+        $order->notes = $notes;
+        $order->save();
+
+        return Response()->json([
+            "message" => "Berhasil mengubah catatan.",
         ], Response::HTTP_CREATED);
     }
 

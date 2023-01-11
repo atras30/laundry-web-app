@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthenticationController;
+use App\Http\Controllers\QrisController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -20,3 +21,4 @@ Route::get('/', function () {
 
 Route::get("/auth/login/google", [AuthenticationController::class, "loginByGooglePage"]);
 Route::get("/auth/login/google/redirect", [AuthenticationController::class, "loginByGoogle"]);
+Route::get("/download/qris-cinta-laundry", [QrisController::class, "download"]);

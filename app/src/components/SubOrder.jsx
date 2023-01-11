@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import InputBerat from "../components/InputBerat";
 import InputUnit from "../components/InputUnit";
 import { formatRupiah } from "../helper/helper";
+import InputSet from "./InputSet";
 
 export default function SubOrder({ calculateTotalPrice, subOrders, index, categories }) {
   const [chosenCategory, setChosenCategory] = useState([]);
@@ -22,7 +23,8 @@ export default function SubOrder({ calculateTotalPrice, subOrders, index, catego
 
     let subOrder = subOrders.find((eachOrder) => eachOrder.id === index);
     subOrder.jenisLaundry = chosenCategory.title;
-    subOrder.jumlah = `${weightInKg.current.value} ${chosenCategory?.is_price_per_unit !== parseInt(1) ? "KG" : "Unit"}`;
+    console.log("Is price per unit ? ", parseInt(chosenCategory.is_price_per_unit) === parseInt(1));
+    subOrder.jumlah = `${weightInKg.current.value} ${parseInt(chosenCategory?.is_price_per_unit) === parseInt(1) ? "Unit" : "KG"}`;
     subOrder.hargaPerKilo = chosenCategory?.price;
 
     let subTotal = 0;
@@ -53,12 +55,15 @@ export default function SubOrder({ calculateTotalPrice, subOrders, index, catego
         <option>Pilih Jenis Laundry</option>
         {categories?.map((category) => (
           <option key={category.id} value={category.id}>
-            {category.title} - {`${formatRupiah(category.price, "Rp. ")} ${parseInt(category.is_price_per_unit) === 1 ? " / Unit" : category?.price_per_multiplied_kg ? ` / ${category?.price_per_multiplied_kg} KG` : " / KG"}`}
+            {console.log(category)}
+            {category.title} - {`${category.price_text}`}
           </option>
         ))}
       </select>
 
-      {parseInt(chosenCategory?.is_price_per_unit) !== parseInt(1) ? <InputBerat weightInKg={weightInKg} handleCategoryChange={handleCategoryChange} /> : <InputUnit weightInKg={weightInKg} handleCategoryChange={handleCategoryChange} />}
+      {parseInt(chosenCategory?.is_price_per_unit) !== 1 && parseInt(chosenCategory?.is_price_per_set) !== 1 && <InputBerat weightInKg={weightInKg} handleCategoryChange={handleCategoryChange} />}
+      {parseInt(chosenCategory?.is_price_per_unit) === 1 && <InputUnit weightInKg={weightInKg} handleCategoryChange={handleCategoryChange} />}
+      {parseInt(chosenCategory?.is_price_per_set) === 1 && <InputSet weightInKg={weightInKg} handleCategoryChange={handleCategoryChange} />}
 
       <div>Total Sub Price : {formatRupiah(Math.ceil(totalSubPrice), "Rp. ")}</div>
     </div>

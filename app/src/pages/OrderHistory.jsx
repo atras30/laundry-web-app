@@ -47,19 +47,19 @@ export default function OrderHistory() {
   }
 
   const handleInputCustomerChange = () => {
-    setOrders(initOrders.filter((order) => order.customer.name.toLowerCase().includes(inputCustomerName.current.value)));
+    setOrders(initOrders.filter((order) => order.customer.name.toLowerCase().includes(inputCustomerName.current.value.toLowerCase())));
   };
 
   return (
     <MasterLayout>
-      <div className="container orders">
-        <div className="title fw-bold fs-4 text-center mb-3">Antrian Customer</div>
+      <div className="container orders pb-2">
+        <div className="title fw-bold fs-4 text-center mb-3">Daftar Order</div>
         <div className="mb-3">
           <input onChange={handleInputCustomerChange} type="text" ref={inputCustomerName} className="form-control bg-light rounded-pill" placeholder="Masukkan nama customer..." />
         </div>
 
         {new Cookies().get("token") && (
-          <button className="btn button-accent-purple w-100 mb-3 fw-bold" onClick={handleAddOrder}>
+          <button className="btn button-accent-purple rounded-pill w-100 mb-3 fw-bold" style={{ background: "#287eff" }} onClick={handleAddOrder}>
             Tambah Order
           </button>
         )}

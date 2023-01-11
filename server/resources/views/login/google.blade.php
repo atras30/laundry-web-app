@@ -8,6 +8,6 @@
 </head>
 <body>
     <p>Maaf, Anda tidak terdaftar dalam aplikasi kami.</p>
-    <a href="/public/auth/login/google">Gunakan akun lainnya</a>
+    <a href="/auth/login/google">Gunakan akun lainnya</a>
 </body>
 </html>

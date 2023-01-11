@@ -1,18 +1,45 @@
-package com.project.cintalaundry;
+package com.project.cintalaundry.model;
 
 import java.util.ArrayList;
 
 public class Order {
-    private String id, status, payment_status;
-    private int total_price;
+    private String id, status, payment_status, notes;
+    private int price;
+    private Customer customer;
     ArrayList<SubOrder> sub_orders;
 
-    public int getTotal_price() {
-        return total_price;
+    public Customer getCustomer() {
+        return customer;
     }
 
-    public void setTotal_price(int total_price) {
-        this.total_price = total_price;
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
+    }
+
+    public Order order;
+
+    public Order getOrder() {
+        return order;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
+    public void setOrder(Order order) {
+        this.order = order;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
     }
 
     public String getId() {

@@ -1,14 +1,21 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
-import { apiBaseUrl, baseUrl } from "../provider/ApiService";
+import React, { useEffect, useRef, useState } from "react";
+import { apiBaseUrl } from "../provider/ApiService";
 import Cookies from "universal-cookie";
 import { toast } from "react-toastify";
 import Customer from "../components/Customer";
 import { useNavigate } from "react-router-dom";
 import MasterLayout from "../layouts/MasterLayout";
+import AddCustomerModal from "../components/AddCustomerModal.jsx";
 
 export default function Customers() {
+  const inputCustomerName = useRef(null);
   const [customers, setCustomers] = useState([]);
+  const [initCustomers, setInitCustomers] = useState([]);
+
+  const [selectedEditCustomerId, setSelectedEditCustomerId] = useState(null);
+  const [selectedEditCustomer, setSelectedEditCustomer] = useState(null);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -19,6 +26,23 @@ export default function Customers() {
 
     fetchCustomers();
   }, []);
+
+  useEffect(() => {
+    if (!selectedEditCustomerId) return;
+    axios
+      .get(apiBaseUrl(`/customers/${selectedEditCustomerId}`), {
+        headers: {
+          Authorization: new Cookies().get("token"),
+        },
+      })
+      .then((response) => {
+        const customer = response.data.customer;
+        setSelectedEditCustomer(customer);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, [selectedEditCustomerId]);
 
   async function fetchCustomers() {
     const response = await axios
@@ -36,21 +60,35 @@ export default function Customers() {
         }
       });
 
-    console.log(response);
     setCustomers(response.data.customers);
+    setInitCustomers(response.data.customers);
   }
+
+  const handleInputCustomerChange = () => {
+    setCustomers(initCustomers?.filter((customer) => customer.name.toLowerCase().includes(inputCustomerName.current.value.toLowerCase())));
+  };
+
   return (
     <MasterLayout>
-      <div className="container text-black">
-        <div className="title fs-5 fw-bold text-center mb-2 text-white">Data Customer</div>
-        <button className="add-customer btn button-accent-purple text-black w-100 mb-3">Tambah Customer</button>
+      <div className="container pb-2">
+        <div className="title fs-4 fw-bold text-center mb-2">Data Customer</div>
+
+        <div className="mb-3">
+          <input onChange={handleInputCustomerChange} type="text" ref={inputCustomerName} className="form-control bg-light rounded-pill" placeholder="Masukkan nama customer..." />
+        </div>
+
+        <button className="add-customer rounded-pill btn button-accent-purple w-100 mb-3" style={{ background: "#287eff" }} data-bs-toggle="modal" data-bs-target="#add-customer-modal">
+          Tambah Customer
+        </button>
 
         <div className="customers">
           {customers?.map((customer) => (
-            <Customer key={customer.id} customer={customer} />
+            <Customer key={customer.id} customerId={customer.id} customer={customer} fetchCustomers={fetchCustomers} setSelectedEditCustomerId={setSelectedEditCustomerId} selectedEditCustomerId={selectedEditCustomerId} selectedEditCustomer={selectedEditCustomer} />
           ))}
         </div>
       </div>
+      {/* ADD CUSTOMER MODAL */}
+      <AddCustomerModal fetchCustomers={fetchCustomers} />
     </MasterLayout>
   );
 }

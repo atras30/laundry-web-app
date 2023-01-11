@@ -28,7 +28,7 @@ export default function NavbarAdmin() {
       })
       .finally(() => {
         new Cookies().remove("token");
-        navigate("/login");
+        navigate("/");
       });
   }
 
@@ -52,6 +52,11 @@ export default function NavbarAdmin() {
             <li className="nav-item">
               <Link className="text-white nav-link active" to="/admin/customers">
                 Daftar Customer
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link className="text-white nav-link active" onClick={() => (window.location.href = "https://drive.google.com/drive/u/0/folders/1DFmnM9N4erE2PmtIXJCpp_g43KNEgxdc")}>
+                Aplikasi Printer
               </Link>
             </li>
             <li className="nav-item">

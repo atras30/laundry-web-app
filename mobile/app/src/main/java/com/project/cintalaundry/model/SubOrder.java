@@ -1,4 +1,4 @@
-package com.project.cintalaundry;
+package com.project.cintalaundry.model;
 
 public class SubOrder {
     private String type, amount;

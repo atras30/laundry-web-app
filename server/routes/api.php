@@ -21,12 +21,15 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->group(function () {
     Route::get("/auth/users", [AuthenticationController::class, "getUser"]);
     Route::get("/customers", [CustomerController::class, "getAllCustomers"]);
+    Route::get("/customers/{id}", [CustomerController::class, "getCustomerById"]);
+    Route::put("/customers/{id}", [CustomerController::class, "editCustomerById"]);
     Route::post("/customers", [CustomerController::class, "store"]);
     Route::post("/auth/logout", [AuthenticationController::class, "logout"]);
     Route::post("/orders", [OrderController::class, "order"]);
     Route::delete("/orders/{id}", [OrderController::class, "delete"]);
     Route::put("/orders/status/{id}", [OrderController::class, "updateStatus"]);
     Route::put("/orders/payment_status/{id}", [OrderController::class, "updatePaymentStatus"]);
+    Route::put("/orders/notes/{id}", [OrderController::class, "updateNotes"]);
 });
 
 Route::post("/auth/login", [AuthenticationController::class, "login"]);

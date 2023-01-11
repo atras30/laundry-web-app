@@ -22,7 +22,7 @@ return new class extends Migration
                 ->onDelete('cascade');
             $table->string("status")->default("Sedang dikerjakan");
             $table->string("payment_status");
-            $table->text("notes")->default("");
+            $table->text("notes")->default("-");
             $table->unsignedInteger("price");
             $table->timestamps();
         });

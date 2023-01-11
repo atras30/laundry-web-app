@@ -1,0 +1,12 @@
+@import url("https://fonts.googleapis.com/css2?family=Pattaya&display=swap");
+
+.tagline {
+  font-family: "Pattaya", sans-serif;
+  letter-spacing: 0.1em;
+  color: #6900cc;
+  font-size: 1.7em;
+}
+
+.heart {
+  color: red;
+}
