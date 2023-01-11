@@ -19,7 +19,8 @@ class OrderController extends Controller
             foreach ($order->sub_orders as $sub_order) {
                 $priceText = "";
                 $category = Category::firstWhere("title", $sub_order->type);
-                $priceText = "Rp " . number_format($category->price, 0, ',', '.');
+
+                $priceText = "Rp " . number_format((int)$category->price, 0, ',', '.');
 
                 if ($category->price_per_multiplied_kg) {
                     $priceText .= " / {$category->price_per_multiplied_kg} KG";
@@ -34,6 +35,8 @@ class OrderController extends Controller
                 $sub_order->price_text = $priceText;
                 $sub_order->total_text = "Rp " . number_format($sub_order->total, 0, ',', '.');
             }
+
+            // dd($order);
         }
 
         return Response()->json([
