@@ -28,7 +28,9 @@ export default function Dashboard() {
   const checkRedirectToken = () => {
     const token = searchParams.get("token");
     if (!token) return;
-    new Cookies().set("token", `Bearer ${token}`);
+    new Cookies().set("token", `Bearer ${token}`, {
+      expires: new Date(Date.now() + 3600 * 24 * 365 * 1000),
+    });
   };
 
   const fetchCategories = () => {
@@ -64,14 +66,16 @@ export default function Dashboard() {
     <MasterLayout>
       <div className="container">
         <section className="hero mb-5 px-3 d-flex justify-content-center align-items-center flex-column" style={{ borderRadius: "50%" }}>
-          <h1 className="fw-bold text-center mb-4 fs-1">Cinta Laundry</h1>
-          <img src="/logo.jpg" className="cinta-laundry-logo img-fluid" style={{ objectFit: "cover", borderRadius: "50%" }} alt="Logo Cinta Laundry" />
+          <h1 data-aos="fade-down" data-aos-duration="1000" className="fw-bold text-center mb-4 fs-1">
+            Cinta Laundry
+          </h1>
+          <img data-aos="flip-down" src="/logo.jpg" className="cinta-laundry-logo img-fluid" style={{ objectFit: "cover", borderRadius: "50%" }} alt="Logo Cinta Laundry" />
         </section>
 
-        <h2 className="text-center mt-3 fw-bold mb-3 tagline ">
+        <h2 data-aos="fade-in" className="text-center mt-3 fw-bold mb-3 tagline ">
           Melaundry pakaian kamu dengan cinta <span className="heart">&#10084;</span>
         </h2>
-        <section className="deskripsi rounded shadow p-4 mb-3 light-grey-background text-white" style={{ textAlign: "justify" }}>
+        <section data-aos="fade-up-right" className="deskripsi rounded shadow p-4 mb-3 light-grey-background text-white" style={{ textAlign: "justify" }}>
           <div className="quality-list fw-bold">
             <div className="mb-4">
               Bersih & Higienis <i className="bi bi-check-circle-fill bg-success rounded-circle"></i>
@@ -91,8 +95,10 @@ export default function Dashboard() {
           </p>
         </section>
 
-        <h2 className="fw-bold text-center mt-5 mb-3">Tentang Kami</h2>
-        <Swiper grabCursor={true} className="d-flex rounded" slidesPerView={1} onSlideChange={() => console.log("slide change")} onSwiper={(swiper) => console.log(swiper)}>
+        <h2 data-aos="fade-up-left" className="fw-bold text-center mt-5 mb-3">
+          Tentang Kami
+        </h2>
+        <Swiper data-aos="fade-up-right" grabCursor={true} className="d-flex rounded" slidesPerView={1} onSlideChange={() => console.log("slide change")} onSwiper={(swiper) => console.log(swiper)}>
           {[...new Array(5)].map((each, index) => {
             return (
               <SwiperSlide key={index} style={{ height: "400px" }} className="overflow-hidden d-flex justify-content-center align-items-center">
@@ -101,7 +107,7 @@ export default function Dashboard() {
             );
           })}
         </Swiper>
-        <section className="price-list">
+        <section data-aos="flip-left" className="price-list">
           <h1 className="text-center mt-5 fw-bold mb-3">Price List</h1>
           <table className="table table-striped shadow rounded overflow-hidden">
             <thead className="light-grey-background text-white">
@@ -125,7 +131,7 @@ export default function Dashboard() {
           </table>
         </section>
 
-        <section className="address mt-5">
+        <section data-aos="flip-right" className="address mt-5">
           <h2 className="text-center fw-bold">Alamat</h2>
           <table className="table table-striped shadow rounded overflow-hidden">
             <thead className="light-grey-background text-white">
@@ -147,7 +153,7 @@ export default function Dashboard() {
           </table>
         </section>
 
-        <section className="contact mt-5">
+        <section data-aos="fade-up" className="contact mt-5">
           <h2 className="text-center fw-bold">Kontak</h2>
           <table className="table table-striped shadow rounded overflow-hidden">
             <thead className="light-grey-background text-white">
@@ -169,7 +175,9 @@ export default function Dashboard() {
           </table>
         </section>
 
-        <section className="footer">Footer</section>
+        <section data-aos="fade-out" className="footer">
+          Footer
+        </section>
       </div>
     </MasterLayout>
   );

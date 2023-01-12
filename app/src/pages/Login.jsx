@@ -50,7 +50,9 @@ export default function Login() {
       )
       .then((response) => {
         toast.update(loginToast, { render: response.data.message, type: "success", isLoading: false, autoClose: 3000, draggable: true, closeOnClick: true });
-        new Cookies().set("token", `Bearer ${response.data.token}`);
+        new Cookies().set("token", `Bearer ${response.data.token}`, {
+          expires: new Date(Date.now() + 3600 * 24 * 365 * 1000),
+        });
         navigate("/");
       })
       .catch((error) => {

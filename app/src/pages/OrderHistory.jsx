@@ -52,7 +52,7 @@ export default function OrderHistory() {
 
   return (
     <MasterLayout>
-      <div className="container orders pb-2">
+      <div data-aos="fade-down" className="container orders pb-2">
         <div className="title fw-bold fs-4 text-center mb-3">Daftar Order</div>
         <div className="mb-3">
           <input onChange={handleInputCustomerChange} type="text" ref={inputCustomerName} className="form-control bg-light rounded-pill" placeholder="Masukkan nama customer..." />
@@ -66,8 +66,8 @@ export default function OrderHistory() {
 
         {isFetchingOrders ? <LoadingSpinner /> : null}
 
-        {orders?.map((order) => (
-          <Order key={order.id} order={order} />
+        {orders?.map((order, index) => (
+          <Order key={order.id} index={index} order={order} />
         ))}
       </div>
     </MasterLayout>

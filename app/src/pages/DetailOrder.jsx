@@ -181,7 +181,7 @@ export default function DetailOrder() {
           <LoadingSpinner />
         ) : (
           <>
-            <div className="card text-center mb-3">
+            <div data-aos="flip-right" className="card text-center mb-3">
               <div className="card-body text-start m-0 p-0">
                 <h5 className="card-header fw-bold text-center rounded-top p-2 border-2 border-black border-bottom">{order?.customer.name}</h5>
                 <div className="p-3">
@@ -241,7 +241,7 @@ export default function DetailOrder() {
 
             <div>
               <div className="text-center fs-5 fw-bold mt-3 mb-2">Metode Pembayaran</div>
-              <table className="table table-striped rounded overflow-hidden">
+              <table data-aos="flip-left" className="table table-striped rounded overflow-hidden">
                 <thead className="purple-200 text-white">
                   <tr className="text-center">
                     <th className="p-2">Metode</th>
@@ -307,7 +307,7 @@ export default function DetailOrder() {
                     <i className="bi bi-whatsapp me-2"></i>Chat Melalui Whatsapp
                   </button>
 
-                  <a className="btn btn-primary rounded-pill" href={`intent:#Intent;scheme=startci://open?url_param=${order?.id};package=com.project.cintalaundry;S.browser_fallback_url=${encodeURIComponent("https://cintalaundry.atras.my.id/#/not_found")};end`}>
+                  <a className="btn btn-primary rounded-pill" href={`intent:#Intent;scheme=startci://open?url_param=${order?.id};package=com.dantsu.thermalprinter;S.browser_fallback_url=${encodeURIComponent("https://cintalaundry.atras.my.id/#/not_found")};end`}>
                     <i className="bi bi-printer"></i> Cetak Struk
                   </a>
                   <a className="btn btn-primary rounded-pill" href={`laundryprojectprinter://printer?uuid=${order?.id}`}>

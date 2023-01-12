@@ -6,7 +6,7 @@ import Cookies from "universal-cookie";
 import DetailSubOrder from "./DetailSubOrder";
 import { formatRupiah } from "../helper/helper";
 
-export default function Order({ order }) {
+export default function Order({ order, index }) {
   const navigate = useNavigate();
 
   function handleRedirect() {
@@ -16,7 +16,7 @@ export default function Order({ order }) {
   }
 
   return (
-    <div className="card text-center mb-3" style={{ cursor: "pointer" }} onClick={handleRedirect}>
+    <div data-aos={index % 2 === 0 ? "flip-left" : "flip-right"} data-aos-duration="400" className="card text-center mb-3" style={{ cursor: "pointer" }} onClick={handleRedirect}>
       <div className="card-body text-start m-0 p-0">
         <h5 className="card-header fw-bold text-center rounded-top p-2 border-2 border-black border-bottom">{order?.customer.name}</h5>
 
