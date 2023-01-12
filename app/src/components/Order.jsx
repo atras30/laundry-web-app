@@ -53,7 +53,10 @@ export default function Order({ order }) {
                 <td className="fw-bold">Status</td>
                 <td className="px-2">:</td>
                 <td>
-                  <span className={`mb-1 ${order?.status === "Sedang dikerjakan" ? "bg-primary" : order?.status === "Selesai" ? "bg-success" : order?.status === "Menunggu diambil" ? "bg-danger" : ""} p-3 rounded py-0 text-white fw-bold d-flex justify-content-center align-items-center`}>{order?.status}</span>
+                  {order?.status === "Sedang dikerjakan" && <span className={`bg-primary mb-1 p-3 rounded py-0 text-white fw-bold d-flex justify-content-center align-items-center`}>{order?.status}</span>}
+                  {order?.status === "Selesai" && <span className={`bg-success mb-1 p-3 rounded py-0 text-white fw-bold d-flex justify-content-center align-items-center`}>{order?.status}</span>}
+                  {order?.status === "Menunggu diambil" && <span className={`bg-danger mb-1 p-3 rounded py-0 text-white fw-bold d-flex justify-content-center align-items-center`}>{order?.status}</span>}
+                  {order?.status === "Sudah diantar" && <span className={`bg-success mb-1 p-3 rounded py-0 text-white fw-bold d-flex justify-content-center align-items-center`}>{order?.status}</span>}
                 </td>
               </tr>
 
