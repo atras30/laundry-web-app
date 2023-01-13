@@ -27,7 +27,6 @@ export default function App() {
     // Animate On Scroll library Initialization
     Aos.init({
       duration: 1000,
-      offset: 130,
     });
   }, []);
 
