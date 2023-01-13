@@ -33,6 +33,7 @@ import com.dantsu.thermalprinter.async.AsyncEscPosPrinter;
 
 import java.io.IOException;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -46,7 +47,6 @@ public class MainActivity extends AppCompatActivity {
     EditText inputCustomerName = null;
     private final Locale locale = new Locale("id", "ID");
     private final DateFormat df = new SimpleDateFormat("dd-MMM-yyyy hh:mm:ss a", locale);
-    private final NumberFormat nf = NumberFormat.getCurrencyInstance(locale);
     private Order order = null;
     public String orderId = null;
 
@@ -133,6 +133,12 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         }
+    }
+
+    public String formatCurrency(int number) {
+        DecimalFormat formatter = new DecimalFormat("#,###");
+        String formattedNumber = "Rp " + formatter.format(number);
+        return formattedNumber;
     }
 
 
@@ -263,7 +269,7 @@ public class MainActivity extends AppCompatActivity {
         AsyncEscPosPrinter printer = new AsyncEscPosPrinter(printerConnection, 203, 48f, 32);
 
         return printer.addTextToPrint(
-                        "[L]" + df.format(new Date()) + "\n" +
+                "[L]" + df.format(new Date()) + "\n" +
                         "[C]================================\n" +
                         "[C]<font size='big-2'>" + inputCustomerName.getText().toString() + "</font>\n" +
                         "[C]================================\n"
@@ -280,7 +286,7 @@ public class MainActivity extends AppCompatActivity {
 
         String subOrdersFormattedText = "";
         for (SubOrder subOrder : order.getSub_orders()) {
-            String price = nf.format(subOrder.getPrice_per_kg());
+            String price = formatCurrency(subOrder.getPrice_per_kg());
 
             if (subOrder.getIs_price_per_unit()) {
                 price += " / Unit";
@@ -294,7 +300,7 @@ public class MainActivity extends AppCompatActivity {
                     "[L]<b>Layanan : </b>" + subOrder.getType() + "\n" +
                             "[L]<b>Harga : </b>" + price + "\n" +
                             "[L]<b>Jumlah : </b>" + subOrder.getAmount() + "\n" +
-                            "[L]<b>Sub Total : </b>" + nf.format(subOrder.getTotal()) + "\n" +
+                            "[L]<b>Sub Total : </b>" + formatCurrency(subOrder.getTotal()) + "\n" +
                             "[C]================================\n"
             ;
         }
@@ -310,7 +316,7 @@ public class MainActivity extends AppCompatActivity {
                         "[C]================================\n" +
                         subOrdersFormattedText + "\n" +
                         "[L]<b>Catatan : </b>" + order.getNotes() + "\n" +
-                        "[L]<b>Total Harga : </b>" + nf.format(order.getPrice()) + "\n\n" +
+                        "[L]<b>Total Harga : </b>" + formatCurrency(order.getPrice()) + "\n\n" +
                         "[C]--------------------------------\n" +
                         "[C]Terimakasih telah mempercayai Cinta Laundry sebagai layanan laundry kamu ^-^\n" +
                         "[C]Website : https://cintalaundry.atras.my.id"
