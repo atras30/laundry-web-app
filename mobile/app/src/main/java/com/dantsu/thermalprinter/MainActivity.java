@@ -108,6 +108,7 @@ public class MainActivity extends AppCompatActivity {
 
                             id.setText("ID : " + order.getId());
                             customerName.setText("Nama Customer : " + order.getCustomer().getName());
+                            inputCustomerName.setText(order.getCustomer().getName());
 
                             Button printBluetoothButton = (Button) findViewById(R.id.button_bluetooth);
                             printBluetoothButton.setOnClickListener(new View.OnClickListener() {
@@ -308,6 +309,7 @@ public class MainActivity extends AppCompatActivity {
                         "[L]<b>Nomor Antrian : </b>" + order.getId() + "\n\n" +
                         "[C]================================\n" +
                         subOrdersFormattedText + "\n" +
+                        "[L]<b>Catatan : </b>" + order.getNotes() + "\n" +
                         "[L]<b>Total Harga : </b>" + nf.format(order.getPrice()) + "\n\n" +
                         "[C]--------------------------------\n" +
                         "[C]Terimakasih telah mempercayai Cinta Laundry sebagai layanan laundry kamu ^-^\n" +
