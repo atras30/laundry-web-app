@@ -13,15 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('categories', function (Blueprint $table) {
-            $table->id();
-            $table->string("title");
-            $table->unsignedInteger("price");
-            $table->unsignedInteger("price_per_multiplied_kg")->nullable();
-            $table->boolean("is_price_per_unit")->default(false);
-            $table->boolean("is_price_per_set")->default(false);
+        Schema::table('categories', function (Blueprint $table) {
             $table->enum("type", ["express", "instant", "normal"])->default("normal");
-            $table->timestamps();
         });
     }
 
@@ -32,6 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('categories');
+        Schema::table('categories', function (Blueprint $table) {
+            //
+        });
     }
 };

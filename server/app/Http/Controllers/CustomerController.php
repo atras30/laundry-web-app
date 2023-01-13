@@ -24,6 +24,15 @@ class CustomerController extends Controller
         ], Response::HTTP_OK);
     }
 
+    public function deleteCustomerById($id)
+    {
+        Customer::firstWhere("id", $id)->delete();
+
+        return response()->json([
+            "message" => "Successfully deleted one customer",
+        ], Response::HTTP_OK);
+    }
+
     public function editCustomerById(Request $request, $id)
     {
         $validated = $request->validate([

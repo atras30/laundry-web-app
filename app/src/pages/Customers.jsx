@@ -68,6 +68,28 @@ export default function Customers() {
     setCustomers(initCustomers?.filter((customer) => customer.name.toLowerCase().includes(inputCustomerName.current.value.toLowerCase())));
   };
 
+  function deleteCustomer(id, closeButton) {
+    console.log("Deleting customer : " + id);
+
+    closeButton.click();
+    const deleteCustomerToast = toast.loading("Menghapus Customer...");
+
+    axios
+      .delete(apiBaseUrl("/customers/" + id), {
+        headers: {
+          Authorization: new Cookies().get("token"),
+        },
+      })
+      .then((response) => {
+        toast.update(deleteCustomerToast, { render: response.data.message, type: "success", isLoading: false, autoClose: 3000, draggable: true, closeOnClick: true });
+        closeButton.click();
+        fetchCustomers();
+      })
+      .catch((error) => {
+        toast.update(deleteCustomerToast, { render: error.response.data.message, type: "error", isLoading: false, autoClose: 3000, draggable: true, closeOnClick: true });
+      });
+  }
+
   return (
     <MasterLayout>
       <div className="container pb-2">
@@ -83,7 +105,7 @@ export default function Customers() {
 
         <div className="customers">
           {customers?.map((customer) => (
-            <Customer key={customer.id} customerId={customer.id} customer={customer} fetchCustomers={fetchCustomers} setSelectedEditCustomerId={setSelectedEditCustomerId} selectedEditCustomerId={selectedEditCustomerId} selectedEditCustomer={selectedEditCustomer} />
+            <Customer key={customer.id} customerId={customer.id} customer={customer} fetchCustomers={fetchCustomers} setSelectedEditCustomerId={setSelectedEditCustomerId} selectedEditCustomerId={selectedEditCustomerId} selectedEditCustomer={selectedEditCustomer} deleteCustomer={deleteCustomer} />
           ))}
         </div>
       </div>

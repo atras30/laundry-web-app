@@ -1,9 +1,12 @@
-import React from "react";
+import axios from "axios";
+import React, { useEffect } from "react";
+import { toast } from "react-toastify";
+import Cookies from "universal-cookie";
+import { apiBaseUrl } from "../provider/ApiService";
+import DeleteCustomerModal from "./DeleteCustomerModal";
 import EditCustomerModal from "./EditCustomerModal";
 
-export default function Customer({ selectedEditCustomer, customerId, customer, editCustomerButton, fetchCustomers, setSelectedEditCustomerId, selectedEditCustomerId }) {
-  function redirectToWhatsapp() {}
-
+export default function Customer({ deleteCustomer, selectedEditCustomer, customerId, customer, editCustomerButton, fetchCustomers, setSelectedEditCustomerId, selectedEditCustomerId }) {
   function changeSelectedCustomerId(element) {
     const selectedCustomerId = element.target.getAttribute("id");
     setSelectedEditCustomerId(selectedCustomerId);
@@ -21,12 +24,16 @@ export default function Customer({ selectedEditCustomer, customerId, customer, e
         <p className="card-text m-2 mt-0">Alamat : {customer.address}</p>
         <p className="card-text m-2">Nomor HP : {customer.phone_number}</p>
         <p className="card-text m-2">Saldo : Rp. {customer.balance}</p>
-        <button className="btn btn-success w-100 fw-bold rounded-pill" onClick={redirectToWhatsapp}>
+        <a href={`https://wa.me/${customer?.phone_number}`} className="mb-2 btn btn-success w-100 fw-bold rounded-pill">
           <i className="bi bi-whatsapp me-2"></i>Chat Whatsapp
+        </a>
+        <button data-bs-toggle="modal" data-bs-target={`#delete-modal-${customer.id}`} className="btn btn-danger w-100 fw-bold rounded-pill">
+          <i class="bi bi-trash"></i> Hapus Customer
         </button>
       </div>
 
       <EditCustomerModal selectedEditCustomer={selectedEditCustomer} fetchCustomers={fetchCustomers} selectedEditCustomerId={selectedEditCustomerId} />
+      <DeleteCustomerModal customer={customer} deleteCustomer={deleteCustomer} />
     </div>
   );
 }

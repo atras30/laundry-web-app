@@ -10,6 +10,8 @@ import "../styles/dashboard.css";
 
 export default function Dashboard() {
   const [priceList, setPriceList] = useState([]);
+  const [expressPriceList, setExpressPriceList] = useState([]);
+  const [instantPriceList, setInstantPriceList] = useState([]);
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -37,7 +39,15 @@ export default function Dashboard() {
     axios
       .get(apiBaseUrl("/categories"))
       .then((response) => {
-        setPriceList(response.data.categories);
+        const categories = response.data.categories;
+        console.log(categories);
+        const normalPriceList = categories.filter((category) => category.type === "normal");
+        const expressPriceList = categories.filter((category) => category.type === "express");
+        const instantPriceList = categories.filter((category) => category.type === "instant");
+
+        setPriceList(normalPriceList);
+        setExpressPriceList(expressPriceList);
+        setInstantPriceList(instantPriceList);
       })
       .catch((error) => {
         console.log(error.response.data);
@@ -98,7 +108,7 @@ export default function Dashboard() {
         <h2 data-aos="fade-up-left" className="fw-bold text-center mt-5 mb-3">
           Tentang Kami
         </h2>
-        <Swiper data-aos="fade-up-right" grabCursor={true} className="d-flex rounded" slidesPerView={1} onSlideChange={() => console.log("slide change")} onSwiper={(swiper) => console.log(swiper)}>
+        <Swiper data-aos="flip-down" grabCursor={true} className="d-flex rounded" slidesPerView={1} onSlideChange={() => console.log("slide change")} onSwiper={(swiper) => console.log(swiper)}>
           {[...new Array(5)].map((each, index) => {
             return (
               <SwiperSlide key={index} style={{ height: "400px" }} className="overflow-hidden d-flex justify-content-center align-items-center">
@@ -108,7 +118,8 @@ export default function Dashboard() {
           })}
         </Swiper>
         <section data-aos="flip-left" className="price-list">
-          <h1 className="text-center mt-5 fw-bold mb-3">Price List</h1>
+          <h1 className="text-center mt-5 fw-bold">Price List</h1>
+          <p className="text-center text-danger fw-bold mb-3">*Estimasi waktu pengerjaan : 3 Hari</p>
           <table className="table table-striped shadow rounded overflow-hidden">
             <thead className="light-grey-background text-white">
               <tr>
@@ -119,6 +130,56 @@ export default function Dashboard() {
             </thead>
             <tbody className="table-light">
               {priceList.map((category, index) => {
+                return (
+                  <tr key={index + 1} className="fw-semibold">
+                    <td className="text-center">{index + 1}</td>
+                    <td>{category.title}</td>
+                    <td>{category.price_text}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </section>
+
+        <section data-aos="flip-left" className="price-list">
+          <p className="text-center mt-5 mb-3 express-price-list fw-bold fs-1">Express Price List</p>
+          <p className="text-center text-danger fw-bold mb-3">*Estimasi waktu pengerjaan : 2 Hari</p>
+          <table className="table table-striped shadow rounded overflow-hidden">
+            <thead className="light-grey-background text-white">
+              <tr>
+                <th className="p-2 text-center">#</th>
+                <th className="p-2">Layanan</th>
+                <th className="p-2">Harga</th>
+              </tr>
+            </thead>
+            <tbody className="table-light">
+              {expressPriceList.map((category, index) => {
+                return (
+                  <tr key={index + 1} className="fw-semibold">
+                    <td className="text-center">{index + 1}</td>
+                    <td>{category.title}</td>
+                    <td>{category.price_text}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </section>
+
+        <section data-aos="flip-left" className="price-list">
+          <p className="text-center mt-5 mb-3 instant-price-list fw-bold fs-1">Instant Price List</p>
+          <p className="text-center text-danger fw-bold mb-3">*Estimasi waktu pengerjaan : 1 Hari</p>
+          <table className="table table-striped shadow rounded overflow-hidden">
+            <thead className="light-grey-background text-white">
+              <tr>
+                <th className="p-2 text-center">#</th>
+                <th className="p-2">Layanan</th>
+                <th className="p-2">Harga</th>
+              </tr>
+            </thead>
+            <tbody className="table-light">
+              {instantPriceList.map((category, index) => {
                 return (
                   <tr key={index + 1} className="fw-semibold">
                     <td className="text-center">{index + 1}</td>
@@ -173,10 +234,6 @@ export default function Dashboard() {
               </tr>
             </tbody>
           </table>
-        </section>
-
-        <section data-aos="fade-out" className="footer">
-          Footer
         </section>
       </div>
     </MasterLayout>
