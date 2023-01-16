@@ -102,7 +102,7 @@ export default function DetailOrder() {
       .then((response) => {
         toast.success(response.data.message);
         closeModalButton.current.click();
-        navigate("/");
+        navigate("/admin");
       })
       .catch((error) => {
         toast.error(error.response.data.message);
@@ -310,9 +310,9 @@ export default function DetailOrder() {
                   <a className="btn btn-primary rounded-pill" href={`intent:#Intent;scheme=startci://open?url_param=${order?.id};package=com.dantsu.thermalprinter;S.browser_fallback_url=${encodeURIComponent("https://cintalaundry.atras.my.id/#/not_found")};end`}>
                     <i className="bi bi-printer"></i> Cetak Struk
                   </a>
-                  <a className="btn btn-primary rounded-pill" href={`laundryprojectprinter://printer?uuid=${order?.id}`}>
+                  {/* <a className="btn btn-primary rounded-pill" href={`laundryprojectprinter://printer?uuid=${order?.id}`}>
                     <i className="bi bi-printer"></i> Cetak Struk (Flutter)
-                  </a>
+                  </a> */}
 
                   <button className="btn btn-danger rounded-pill w-100 mb-4" data-bs-toggle="modal" data-bs-target="#delete-modal">
                     <i className="bi bi-trash"></i> Hapus Pesanan
@@ -358,14 +358,14 @@ export default function DetailOrder() {
           <div className="modal-content">
             <div className="modal-header">
               <h1 className="modal-title fs-5 text-center" id="exampleModalLabel">
-                yakin ingin menghapus pesanan ?
+                yakin ingin menghapus pesanan <b>{order?.customer?.name}</b> dengan nomor transaksi <b>{order?.id}</b>?
               </h1>
             </div>
             <div className="modal-footer">
               <button ref={closeModalButton} type="button" className="btn btn-secondary" data-bs-dismiss="modal">
                 Kembali
               </button>
-              <button type="button" className="btn btn-primary" onClick={deleteOrder}>
+              <button type="button" className="btn btn-danger" onClick={deleteOrder}>
                 Ya, Yakin!
               </button>
             </div>

@@ -123,7 +123,7 @@ export default function AddOrder() {
   }
 
   useEffect(() => {
-    console.log("Sub Orders in AddOrder.jsx", subOrders);
+    // console.log("Sub Orders in AddOrder.jsx", subOrders);
   }, [subOrders]);
 
   const addSubOrder = () => {

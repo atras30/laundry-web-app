@@ -2,29 +2,33 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import MasterLayout from "../layouts/MasterLayout";
 import { apiBaseUrl } from "../provider/ApiService";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import Cookies from "universal-cookie";
 import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css/bundle";
 import "swiper/css";
+import "swiper/css/pagination";
+import "swiper/css/navigation";
+import "swiper/css/effect-cards";
 import "../styles/dashboard.css";
+import TypeIt from "typeit";
 
 export default function Dashboard() {
   const [priceList, setPriceList] = useState([]);
   const [expressPriceList, setExpressPriceList] = useState([]);
   const [instantPriceList, setInstantPriceList] = useState([]);
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
 
   useEffect(() => {
     fetchCategories();
     checkRedirectToken();
-    checkMiddleware();
+    initTaglineTypeIt();
   }, []);
 
-  function checkMiddleware() {
-    if (new Cookies().get("token")) {
-      navigate("/admin");
-    }
+  function initTaglineTypeIt() {
+    new TypeIt("#tagline", {
+      speed: 125,
+    }).go();
   }
 
   const checkRedirectToken = () => {
@@ -40,7 +44,7 @@ export default function Dashboard() {
       .get(apiBaseUrl("/categories"))
       .then((response) => {
         const categories = response.data.categories;
-        console.log(categories);
+        // console.log(categories);
         const normalPriceList = categories.filter((category) => category.type === "normal");
         const expressPriceList = categories.filter((category) => category.type === "express");
         const instantPriceList = categories.filter((category) => category.type === "instant");
@@ -54,24 +58,6 @@ export default function Dashboard() {
       });
   };
 
-  function formatRupiah(angka, prefix) {
-    angka = angka.toString();
-    var number_string = angka.replace(/[^,\d]/g, "").toString(),
-      split = number_string.split(","),
-      sisa = split[0].length % 3,
-      rupiah = split[0].substr(0, sisa),
-      ribuan = split[0].substr(sisa).match(/\d{3}/gi);
-
-    // tambahkan titik jika yang di input sudah menjadi angka ribuan
-    if (ribuan) {
-      let separator = sisa ? "." : "";
-      rupiah += separator + ribuan.join(".");
-    }
-
-    rupiah = split[1] !== undefined ? rupiah + "," + split[1] : rupiah;
-    return prefix === undefined ? rupiah : rupiah ? "Rp. " + rupiah : "";
-  }
-
   return (
     <MasterLayout>
       <div className="container">
@@ -82,10 +68,10 @@ export default function Dashboard() {
           <img data-aos="flip-down" src="/logo.jpg" className="cinta-laundry-logo img-fluid" style={{ objectFit: "cover", borderRadius: "50%" }} alt="Logo Cinta Laundry" />
         </section>
 
-        <h2 data-aos="fade-in" className="text-center mt-3 fw-bold mb-3 tagline ">
+        <h2 data-aos="fade-in" className="text-center mt-3 fw-bold mb-3 tagline" id="tagline">
           Melaundry pakaian kamu dengan cinta <span className="heart">&#10084;</span>
         </h2>
-        <section data-aos="fade-up-right" className="deskripsi rounded shadow p-4 mb-3 light-grey-background text-white" style={{ textAlign: "justify" }}>
+        <section data-aos="fade-up" className="deskripsi rounded shadow p-4 mb-3 light-grey-background text-white" style={{ textAlign: "justify" }}>
           <div className="quality-list fw-bold">
             <div className="mb-4">
               Bersih & Higienis <i className="bi bi-check-circle-fill bg-success rounded-circle"></i>
@@ -105,14 +91,14 @@ export default function Dashboard() {
           </p>
         </section>
 
-        <h2 data-aos="fade-up-left" className="fw-bold text-center mt-5 mb-3">
+        <h2 data-aos="fade-up" className="fw-bold text-center mt-5 mb-3">
           Tentang Kami
         </h2>
-        <Swiper data-aos="flip-down" grabCursor={true} className="d-flex rounded" slidesPerView={1} onSlideChange={() => console.log("slide change")} onSwiper={(swiper) => console.log(swiper)}>
-          {[...new Array(5)].map((each, index) => {
+        <Swiper spaceBetween={25} style={{ width: "100%" }} grabCursor={true} className="mySwiper">
+          {[...new Array(3)].map((each, index) => {
             return (
-              <SwiperSlide key={index} style={{ height: "400px" }} className="overflow-hidden d-flex justify-content-center align-items-center">
-                <img style={{ objectFit: "cover" }} className="h-100 img-thumbnail rounded" src={`/assets/images/landing_page/image-${index + 1}.png`} alt="Swiper Item" />
+              <SwiperSlide key={index}>
+                <img style={{ objectFit: "cover" }} className="h-100 w-100 rounded img-thumbnail" src={`/assets/images/landing_page/image-${index + 1}.jpg`} alt="Swiper Item" />
               </SwiperSlide>
             );
           })}

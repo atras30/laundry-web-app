@@ -23,7 +23,7 @@ export default function SubOrder({ calculateTotalPrice, subOrders, index, catego
 
     let subOrder = subOrders.find((eachOrder) => eachOrder.id === index);
     subOrder.jenisLaundry = chosenCategory.title;
-    console.log("Is price per unit ? ", parseInt(chosenCategory.is_price_per_unit) === parseInt(1));
+    // console.log("Is price per unit ? ", parseInt(chosenCategory.is_price_per_unit) === parseInt(1));
     subOrder.jumlah = `${weightInKg.current.value} ${parseInt(chosenCategory?.is_price_per_unit) === parseInt(1) ? "Unit" : "KG"}`;
     subOrder.hargaPerKilo = chosenCategory?.price;
 
@@ -31,12 +31,12 @@ export default function SubOrder({ calculateTotalPrice, subOrders, index, catego
     if (chosenCategory.price_per_multiplied_kg != null) {
       subTotal = chosenCategory.price * Math.ceil(weightInKg.current.value / chosenCategory.price_per_multiplied_kg);
       subOrder.subTotal = subTotal;
-      console.log(subOrders);
+      // console.log(subOrders);
       setTotalSubPrice(subTotal);
     } else {
       subTotal = chosenCategory.price * weightInKg.current.value;
       subOrder.subTotal = subTotal;
-      console.log(subOrders);
+      // console.log(subOrders);
       setTotalSubPrice(subTotal);
     }
 
@@ -55,7 +55,7 @@ export default function SubOrder({ calculateTotalPrice, subOrders, index, catego
         <option>Pilih Jenis Laundry</option>
         {categories?.map((category) => (
           <option key={category.id} value={category.id}>
-            {console.log(category)}
+            {/* {console.log(category)} */}
             {category.title} - {`${category.price_text}`}
           </option>
         ))}

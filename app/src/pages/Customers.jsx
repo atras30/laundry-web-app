@@ -69,7 +69,7 @@ export default function Customers() {
   };
 
   function deleteCustomer(id, closeButton) {
-    console.log("Deleting customer : " + id);
+    // console.log("Deleting customer : " + id);
 
     closeButton.click();
     const deleteCustomerToast = toast.loading("Menghapus Customer...");

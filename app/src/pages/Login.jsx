@@ -62,9 +62,9 @@ export default function Login() {
 
   function handleCredentialResponse(response) {
     const user = jwt_decode(response.credential);
-    console.log(response);
+    // console.log(response);
 
-    console.log(user);
+    // console.log(user);
 
     // axios
     //   .get(apiBaseUrl(`/users/find-by-email/${user.email}`))

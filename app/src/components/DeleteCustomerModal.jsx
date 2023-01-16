@@ -4,7 +4,7 @@ export default function DeleteCustomerModal({ customer, deleteCustomer }) {
   const closeButton = useRef(null);
 
   useEffect(() => {
-    console.log(customer);
+    // console.log(customer);
   }, []);
 
   function handleDeleteCustomer() {
