@@ -183,7 +183,7 @@ export default function DetailOrder() {
           <>
             <div data-aos="flip-right" className="card text-center mb-3">
               <div className="card-body text-start m-0 p-0">
-                <h5 className="card-header fw-bold text-center rounded-top p-2 border-2 border-black border-bottom">{order?.customer.name}</h5>
+                <h5 className="card-header fw-bold text-center rounded-top p-2 border-2 border-black border-bottom bg-secondary text-white">{order?.customer.name}</h5>
                 <div className="p-3">
                   <table style={{ width: "100%" }}>
                     <tbody>
@@ -209,7 +209,7 @@ export default function DetailOrder() {
                       <tr>
                         <td className="fw-bold">Total Harga</td>
                         <td className="px-2">:</td>
-                        <td>{formatRupiah(order?.price, "Rp. ")}</td>
+                        <td>{formatRupiah(order?.price, "Rp ")}</td>
                       </tr>
 
                       <tr>
@@ -236,7 +236,10 @@ export default function DetailOrder() {
                   </table>
                 </div>
               </div>
-              <div className="card-footer text-muted">Tanggal Masuk : {order && formatRelative(new Date(order?.created_at), new Date(), { locale: id })}</div>
+              <div className="card-footer text-muted">
+                <div>Tanggal Masuk : {order && formatRelative(new Date(order?.created_at), new Date(), { locale: id })}</div>
+                <div>Tanggal Selesai : {new Date().toJSON().slice(0, 10)}</div>
+              </div>
             </div>
 
             <div>

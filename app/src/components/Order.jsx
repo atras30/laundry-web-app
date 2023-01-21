@@ -71,7 +71,10 @@ export default function Order({ order, index }) {
           </table>
         </div>
       </div>
-      <div className="card-footer text-muted">Tanggal Masuk : {order && formatRelative(new Date(order?.created_at), new Date(), { locale: id })}</div>
+      <div className="card-footer text-muted">
+        <div>Tanggal Masuk : {order && formatRelative(new Date(order?.created_at), new Date(), { locale: id })}</div>
+        <div>Tanggal Selesai : {new Date().toJSON().slice(0, 10)}</div>
+      </div>
     </div>
   );
 }

@@ -7,11 +7,13 @@ import Customer from "../components/Customer";
 import { useNavigate } from "react-router-dom";
 import MasterLayout from "../layouts/MasterLayout";
 import AddCustomerModal from "../components/AddCustomerModal.jsx";
+import CustomerSkeleton from "../components/skeleton/CustomerSkeleton";
 
 export default function Customers() {
   const inputCustomerName = useRef(null);
   const [customers, setCustomers] = useState([]);
   const [initCustomers, setInitCustomers] = useState([]);
+  const [isFetchingCustomer, setIsFetchingCustomer] = useState(true);
 
   const [selectedEditCustomerId, setSelectedEditCustomerId] = useState(null);
   const [selectedEditCustomer, setSelectedEditCustomer] = useState(null);
@@ -62,6 +64,7 @@ export default function Customers() {
 
     setCustomers(response.data.customers);
     setInitCustomers(response.data.customers);
+    setIsFetchingCustomer(false);
   }
 
   const handleInputCustomerChange = () => {
@@ -92,7 +95,7 @@ export default function Customers() {
 
   return (
     <MasterLayout>
-      <div className="container pb-2">
+      <div className="container pb-2" data-aos="fade-down">
         <div className="title fs-4 fw-bold text-center mb-2">Data Customer</div>
 
         <div className="mb-3">
@@ -104,6 +107,7 @@ export default function Customers() {
         </button>
 
         <div className="customers">
+          {isFetchingCustomer && <CustomerSkeleton />}
           {customers?.map((customer) => (
             <Customer key={customer.id} customerId={customer.id} customer={customer} fetchCustomers={fetchCustomers} setSelectedEditCustomerId={setSelectedEditCustomerId} selectedEditCustomerId={selectedEditCustomerId} selectedEditCustomer={selectedEditCustomer} deleteCustomer={deleteCustomer} />
           ))}

@@ -5,7 +5,7 @@ import { apiBaseUrl } from "../provider/ApiService";
 import Order from "../components/Order";
 import { useNavigate } from "react-router-dom";
 import Cookies from "universal-cookie";
-import LoadingSpinner from "../components/LoadingSpinner";
+import OrderSkeleton from "../components/skeleton/OrderSkeleton";
 
 export default function OrderHistory() {
   const [initOrders, setInitOrders] = useState([]);
@@ -97,7 +97,7 @@ export default function OrderHistory() {
           </button>
         )}
 
-        {isFetchingOrders ? <LoadingSpinner /> : null}
+        {isFetchingOrders ? <OrderSkeleton /> : null}
 
         {orders?.map((order, index) => (
           <Order key={order.id} index={index} order={order} />

@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthenticationController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\OrderController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -31,6 +32,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put("/orders/status/{id}", [OrderController::class, "updateStatus"]);
     Route::put("/orders/payment_status/{id}", [OrderController::class, "updatePaymentStatus"]);
     Route::put("/orders/notes/{id}", [OrderController::class, "updateNotes"]);
+    Route::get("/expenses", [ExpenseController::class, "index"]);
+    Route::post("/expenses", [ExpenseController::class, "store"]);
 });
 
 Route::post("/auth/login", [AuthenticationController::class, "login"]);
