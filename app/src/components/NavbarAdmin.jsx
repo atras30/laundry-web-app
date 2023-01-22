@@ -55,12 +55,14 @@ export default function NavbarAdmin() {
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="text-white nav-link active" to="/admin/expense">
-                Daftar Pengeluaran
+              <Link className="text-white nav-link active" to="/admin/report">
+                Laporan Keuangan
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="text-white nav-link active">Cetak Laporan</Link>
+              <Link className="text-white nav-link active" to={"/admin/report/print"}>
+                Cetak Laporan
+              </Link>
             </li>
             <li className="nav-item">
               <Link className="text-white nav-link active" onClick={() => (window.location.href = "https://drive.google.com/drive/u/0/folders/1DFmnM9N4erE2PmtIXJCpp_g43KNEgxdc")}>

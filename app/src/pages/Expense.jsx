@@ -7,8 +7,9 @@ import MasterLayout from "../layouts/MasterLayout";
 import { apiBaseUrl } from "../provider/ApiService";
 import { formatRupiah } from "../helper/helper";
 import { format, lastDayOfMonth } from "date-fns";
-import Skeleton from "react-loading-skeleton";
 import ExpenseSkeleton from "../components/skeleton/ExpenseSkeleton";
+import OrderReport from "../components/OrderReport";
+import "../styles/report.css";
 
 export default function Expense() {
   const inputItem = useRef(null);
@@ -19,9 +20,13 @@ export default function Expense() {
   const filterStartDate = useRef(null);
 
   const [expenses, setExpenses] = useState([]);
+  const [orders, setOrders] = useState([]);
   const [filteredExpense, setFilteredExpense] = useState([]);
+  const [filteredOrders, setFilteredOrders] = useState([]);
   const [totalExpense, setTotalExpense] = useState(0);
+  const [totalIncome, setTotalIncome] = useState(0);
   const [isFetchingExpense, setIsFetchingExpense] = useState(true);
+  const [isFetchingOrders, setIsFetchingOrders] = useState(true);
 
   function clearInputModal() {
     inputItem.current.value = "";
@@ -59,11 +64,30 @@ export default function Expense() {
 
   useEffect(() => {
     fetchExpenses();
+    fetchOrders();
   }, []);
 
   useEffect(() => {
     calculateTotalExpense();
-  }, [filteredExpense]);
+    calculateTotalIncome();
+  }, [filteredExpense, filteredOrders]);
+
+  function fetchOrders() {
+    axios
+      .get(apiBaseUrl("/orders"), {
+        headers: {
+          Authorization: new Cookies().get("token"),
+        },
+      })
+      .then((response) => {
+        setOrders(response.data.orders);
+        setFilteredOrders(response.data.orders);
+        setIsFetchingOrders(false);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
 
   function calculateTotalExpense() {
     let total = 0;
@@ -71,6 +95,14 @@ export default function Expense() {
       total += parseInt(expense.total);
     });
     setTotalExpense(total);
+  }
+
+  function calculateTotalIncome() {
+    let total = 0;
+    filteredOrders.forEach((order) => {
+      total += parseInt(order.price);
+    });
+    setTotalIncome(total);
   }
 
   function fetchExpenses() {
@@ -91,7 +123,11 @@ export default function Expense() {
   }
 
   function filterExpense(startYear, startMonth) {
-    if (startYear === "" || startMonth === "") return setFilteredExpense(expenses);
+    if (startYear === "" || startMonth === "") {
+      setFilteredExpense(expenses);
+      setFilteredOrders(orders);
+      return;
+    }
 
     let startDate, startDateFilter, endDateFilter;
 
@@ -111,20 +147,25 @@ export default function Expense() {
       return expense.created_at >= startDateFilter && expense.created_at <= endDateFilter;
     });
 
+    const filteredOrders = orders.filter((order) => {
+      return order.created_at >= startDateFilter && order.created_at <= endDateFilter;
+    });
+
     setFilteredExpense(filteredExpense);
+    setFilteredOrders(filteredOrders);
   }
 
   return (
     <MasterLayout>
-      <div className="container">
+      <div className="container" data-aos="fade-down">
         <div className="title expense text-center fw-bold fs-3 mb-3">Laporan Pengeluaran</div>
 
         <button className="w-100 rounded-pill align-self-end add-item btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#add-item-modal">
-          Tambah Item
+          Tambah Pengeluaran
         </button>
 
         <div className="d-flex mb-3 justify-content-center align-items-center gap-2">
-          <select onChange={() => filterExpense(filterStartYear.current.value, filterStartDate.current.value)} ref={filterStartYear} class="form-select text-center rounded-pill" aria-label="Default select example">
+          <select onChange={() => filterExpense(filterStartYear.current.value, filterStartDate.current.value)} ref={filterStartYear} className="form-select text-center rounded-pill" aria-label="Default select example">
             <option value="">Filter Tahun</option>
             <option value="2020">2020</option>
             <option value="2021">2021</option>
@@ -132,7 +173,7 @@ export default function Expense() {
             <option value="2023">2023</option>
             <option value="2024">2024</option>
           </select>
-          <select onChange={() => filterExpense(filterStartYear.current.value, filterStartDate.current.value)} ref={filterStartDate} class="form-select text-center rounded-pill" aria-label="Default select example">
+          <select onChange={() => filterExpense(filterStartYear.current.value, filterStartDate.current.value)} ref={filterStartDate} className="form-select text-center rounded-pill" aria-label="Default select example">
             <option value="">Filter Bulan</option>
             <option value="0">Januari</option>
             <option value="1">Februari</option>
@@ -151,16 +192,16 @@ export default function Expense() {
         </div>
 
         <div className="total-expense text-black fw-bold mb-3 text-center">
-          <h5 className="fw-bold">Total Pengeluaran : {formatRupiah(totalExpense, "Rp. ")}</h5>
+          <h5 className="fw-bold">Total Pengeluaran : {formatRupiah(totalExpense, "Rp ")}</h5>
         </div>
 
-        <div style={{ overflowX: "scroll" }}>
+        <div className="report-table" style={{ overflowX: "scroll" }}>
           <table className="table table-striped table-bordered text-center bg-light rounded overflow-scroll col-12">
             <thead>
               <tr>
                 <th>#</th>
                 <th>Barang</th>
-                <th>Quantity</th>
+                <th>Jumlah</th>
                 <th>Total</th>
                 <th>Tanggal</th>
               </tr>
@@ -175,12 +216,36 @@ export default function Expense() {
           </table>
         </div>
 
+        <div className="total-expense mt-3 text-black fw-bold mb-3 text-center">
+          <h5 className="fw-bold">Total Pemasukan : {formatRupiah(totalIncome, "Rp ")}</h5>
+        </div>
+        <div className="report-table" style={{ overflowX: "scroll" }}>
+          <table className="table table-striped table-bordered text-center bg-light rounded overflow-scroll col-12">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Customer</th>
+                <th>Total</th>
+                <th>Tanggal</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {isFetchingOrders && <ExpenseSkeleton />}
+              {filteredOrders?.map((order, index) => (
+                <OrderReport key={order.id} order={order} index={index + 1}></OrderReport>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
         <div className="modal fade" id="add-item-modal" tabIndex="-1" aria-hidden="true">
           <div className="modal-dialog modal-dialog-centered">
             <div className="modal-content">
               <div className="modal-header">
                 <h1 className="modal-title text-center fs-5 w-100 fw-bold" id="exampleModalLabel">
-                  Tambah Item
+                  Tambah Pengeluaran
                 </h1>
                 <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>

@@ -95,7 +95,7 @@ export default function Customers() {
 
   return (
     <MasterLayout>
-      <div className="container pb-2" data-aos="fade-down">
+      <div className="container pb-2">
         <div className="title fs-4 fw-bold text-center mb-2">Data Customer</div>
 
         <div className="mb-3">

@@ -1,5 +1,5 @@
 import React from "react";
-import { formatRelative } from "date-fns";
+import { format, formatRelative } from "date-fns";
 import { id } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
 import Cookies from "universal-cookie";
@@ -72,8 +72,9 @@ export default function Order({ order, index }) {
         </div>
       </div>
       <div className="card-footer text-muted">
-        <div>Tanggal Masuk : {order && formatRelative(new Date(order?.created_at), new Date(), { locale: id })}</div>
-        <div>Tanggal Selesai : {new Date().toJSON().slice(0, 10)}</div>
+        {/* <div>Tanggal Masuk : {order && formatRelative(new Date(order?.created_at), new Date(), { locale: id })}</div> */}
+        <div>Tanggal Masuk : {order && format(new Date(order?.created_at), "dd MMMM yyyy", { locale: id })}</div>
+        <div>Tanggal Selesai : {!order.done_at ? "-" : format(new Date(order?.done_at), "dd MMMM yyyy", { locale: id })}</div>
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Order;
 use App\Models\SubOrder;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
@@ -124,6 +125,37 @@ class OrderController extends Controller
 
         return Response()->json([
             "message" => "Berhasil mengubah catatan.",
+        ], Response::HTTP_CREATED);
+    }
+    public function updateCreatedAt(Request $request, $id)
+    {
+        $order = Order::findOrFail($id);
+
+        $request->validate([
+            "created_at" => "required"
+        ]);
+
+        $order->created_at = $request->created_at;
+        $order->save();
+
+        return Response()->json([
+            "message" => "Berhasil mengubah Tanggal Masuk.",
+        ], Response::HTTP_CREATED);
+    }
+
+    public function updateDoneAt(Request $request, $id)
+    {
+        $order = Order::findOrFail($id);
+
+        $request->validate([
+            "done_at" => "required"
+        ]);
+
+        $order->done_at = Carbon::parse($request->done_at);
+        $order->save();
+
+        return Response()->json([
+            "message" => "Berhasil mengubah Tanggal Selesai.",
         ], Response::HTTP_CREATED);
     }
 

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { formatRelative } from "date-fns";
+import { format, formatRelative } from "date-fns";
 import { id } from "date-fns/locale";
 import React, { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -10,18 +10,24 @@ import Cookies from "universal-cookie";
 import { useNavigate } from "react-router-dom";
 import DetailSubOrder from "../components/DetailSubOrder";
 import { formatRupiah } from "../helper/helper";
-import LoadingSpinner from "../components/LoadingSpinner";
+import DetailOrderSkeleton from "../components/skeleton/DetailOrderSkeleton";
+import ChangeCreatedAtForm from "../components/ChangeCreatedAtForm";
+import ChangeDoneAtForm from "../components/ChangeDoneAtForm";
 
 export default function DetailOrder() {
   const [order, setOrder] = useState(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const [isFetchingDetailOrder, setIsFetchingDetailOrder] = useState(true);
+  const [startDate, setStartDate] = useState(new Date());
+  const [finishDate, setFinishDate] = useState(new Date());
   const orderId = searchParams.get("id");
   const orderStatus = useRef(null);
   const statusPayment = useRef(null);
   const changeNotes = useRef(null);
   const closeModalButton = useRef(null);
   const closeModalChangeNotesButton = useRef(null);
+  const inputChangeDate = useRef(null);
+  const [changeDate, setChangeDate] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,7 +39,14 @@ export default function DetailOrder() {
       .get(apiBaseUrl(`/orders/${orderId}`))
       .then((response) => {
         const order = response.data.order;
-        setOrder(response.data.order);
+        setOrder(order);
+        setStartDate(new Date(order.created_at));
+
+        if (!order.done_at) {
+          setFinishDate(null);
+        } else {
+          setFinishDate(new Date(order.done_at));
+        }
       })
       .catch((error) => {
         toast.error(error.response.data.message);
@@ -172,13 +185,18 @@ export default function DetailOrder() {
       });
   }
 
+  function hideModal() {
+    const button = document.getElementById("change-date-modal-back-button");
+    button.click();
+  }
+
   return (
     <MasterLayout>
       <div className="title fw-bold fs-2 text-center mb-3">Detail Order</div>
       <div className="container">
         {/* If order is still fecthing, display loading */}
         {isFetchingDetailOrder ? (
-          <LoadingSpinner />
+          <DetailOrderSkeleton />
         ) : (
           <>
             <div data-aos="flip-right" className="card text-center mb-3">
@@ -237,8 +255,8 @@ export default function DetailOrder() {
                 </div>
               </div>
               <div className="card-footer text-muted">
-                <div>Tanggal Masuk : {order && formatRelative(new Date(order?.created_at), new Date(), { locale: id })}</div>
-                <div>Tanggal Selesai : {new Date().toJSON().slice(0, 10)}</div>
+                <div>Tanggal Masuk : {order && format(new Date(order?.created_at), "dd MMMM yyyy", { locale: id })}</div>
+                <div>Tanggal Selesai : {!order.done_at ? "-" : format(new Date(order?.done_at), "dd MMMM yyyy", { locale: id })}</div>
               </div>
             </div>
 
@@ -306,6 +324,10 @@ export default function DetailOrder() {
                     <i className="bi bi-pencil"></i> Ubah catatan
                   </button>
 
+                  <button className="btn btn button-accent-purple rounded-pill w-100" data-bs-toggle="modal" data-bs-target="#change-date-modal">
+                    <i class="bi bi-check-circle"></i> Ubah Tanggal
+                  </button>
+
                   <button onClick={() => handleWhatsappChat(order?.status)} className="btn btn-success rounded-pill w-100 ">
                     <i className="bi bi-whatsapp me-2"></i>Chat Melalui Whatsapp
                   </button>
@@ -350,6 +372,33 @@ export default function DetailOrder() {
               </button>
               <button type="button" className="btn btn-primary" onClick={handleChangeNotes}>
                 Ubah
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="modal fade" id="change-date-modal" tabIndex="-1" aria-labelledby="change-notes-modal" aria-hidden="true">
+        <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+          <div className="modal-content h-100">
+            <div className="modal-header">
+              <h1 className="w-100 modal-title fs-5 text-center" id="exampleModalLabel">
+                Ubah Tanggal
+              </h1>
+            </div>
+
+            <div className="modal-body">
+              <select ref={inputChangeDate} class="form-select" onChange={() => setChangeDate(inputChangeDate.current.value)}>
+                <option selected>Pilih Tanggal</option>
+                <option value="created_at">Tanggal Masuk</option>
+                <option value="done_at">Tanggal Selesai</option>
+              </select>
+
+              {changeDate === "created_at" ? <ChangeCreatedAtForm hideModal={hideModal} fetchOrder={fetchOrder} orderId={order?.id} startDate={startDate} setStartDate={setStartDate} /> : changeDate === "done_at" ? <ChangeDoneAtForm hideModal={hideModal} fetchOrder={fetchOrder} orderId={order?.id} finishDate={finishDate} setFinishDate={setFinishDate} /> : null}
+            </div>
+            <div className="modal-footer">
+              <button id="change-date-modal-back-button" type="button" className="btn btn-secondary w-100" data-bs-dismiss="modal">
+                Kembali
               </button>
             </div>
           </div>
