@@ -27,6 +27,7 @@ export default function Expense() {
   const [totalIncome, setTotalIncome] = useState(0);
   const [isFetchingExpense, setIsFetchingExpense] = useState(true);
   const [isFetchingOrders, setIsFetchingOrders] = useState(true);
+  const inputTempTotal = useRef(null);
 
   function clearInputModal() {
     inputItem.current.value = "";
@@ -157,7 +158,7 @@ export default function Expense() {
 
   return (
     <MasterLayout>
-      <div className="container" data-aos="fade-down">
+      <div className="container">
         <div className="title expense text-center fw-bold fs-3 mb-3">Laporan Pengeluaran</div>
 
         <button className="w-100 rounded-pill align-self-end add-item btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#add-item-modal">
@@ -167,11 +168,11 @@ export default function Expense() {
         <div className="d-flex mb-3 justify-content-center align-items-center gap-2">
           <select onChange={() => filterExpense(filterStartYear.current.value, filterStartDate.current.value)} ref={filterStartYear} className="form-select text-center rounded-pill" aria-label="Default select example">
             <option value="">Filter Tahun</option>
-            <option value="2020">2020</option>
-            <option value="2021">2021</option>
-            <option value="2022">2022</option>
             <option value="2023">2023</option>
             <option value="2024">2024</option>
+            <option value="2025">2025</option>
+            <option value="2026">2026</option>
+            <option value="2027">2027</option>
           </select>
           <select onChange={() => filterExpense(filterStartYear.current.value, filterStartDate.current.value)} ref={filterStartDate} className="form-select text-center rounded-pill" aria-label="Default select example">
             <option value="">Filter Bulan</option>
@@ -191,13 +192,33 @@ export default function Expense() {
           </select>
         </div>
 
-        <div className="total-expense text-black fw-bold mb-3 text-center">
-          <h5 className="fw-bold">Total Pengeluaran : {formatRupiah(totalExpense, "Rp ")}</h5>
-        </div>
+        <table className="table table-striped table-bordered text-center bg-light rounded overflow-hidden col-12">
+          <thead>
+            <tr className="bg-secondary text-white fw-bold rounded">
+              <td colSpan={3}>Ringkasan</td>
+            </tr>
+            <tr>
+              <th>Total Pengeluaran</th>
+              <th>Total Pemasukan</th>
+              <th>Total Pendapatan</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr>
+              <td>{formatRupiah(totalExpense, "Rp ")}</td>
+              <td>{formatRupiah(totalIncome, "Rp ")}</td>
+              <td>{formatRupiah(totalExpense - totalIncome, "Rp ")}</td>
+            </tr>
+          </tbody>
+        </table>
 
         <div className="report-table" style={{ overflowX: "scroll" }}>
-          <table className="table table-striped table-bordered text-center bg-light rounded overflow-scroll col-12">
+          <table className="table table-striped table-bordered text-center bg-light rounded overflow-hidden col-12">
             <thead>
+              <tr className="bg-secondary text-white fw-bold rounded">
+                <td colSpan={5}>Tabel Pengeluaran</td>
+              </tr>
               <tr>
                 <th>#</th>
                 <th>Barang</th>
@@ -216,12 +237,12 @@ export default function Expense() {
           </table>
         </div>
 
-        <div className="total-expense mt-3 text-black fw-bold mb-3 text-center">
-          <h5 className="fw-bold">Total Pemasukan : {formatRupiah(totalIncome, "Rp ")}</h5>
-        </div>
         <div className="report-table" style={{ overflowX: "scroll" }}>
-          <table className="table table-striped table-bordered text-center bg-light rounded overflow-scroll col-12">
+          <table className="table table-striped table-bordered text-center bg-light rounded overflow-hidden  col-12">
             <thead>
+              <tr className="bg-secondary text-white fw-bold rounded">
+                <td colSpan={5}>Tabel Pendapatan</td>
+              </tr>
               <tr>
                 <th>#</th>
                 <th>Customer</th>
@@ -254,19 +275,20 @@ export default function Expense() {
                   <label htmlFor="input-item" className="form-label">
                     Barang
                   </label>
-                  <input type="text" className="form-control" id="input-item" ref={inputItem} />
+                  <input required type="text" className="form-control" id="input-item" ref={inputItem} />
                 </div>
                 <div className="mb-3">
                   <label htmlFor="input-quantity" className="form-label">
                     Jumlah
                   </label>
-                  <input ref={inputQuantity} type="number" min={0} className="form-control" id="input-quantity" />
+                  <input ref={inputQuantity} type="text" className="form-control" id="input-quantity" />
                 </div>
                 <div className="mb-3">
                   <label htmlFor="input-total" className="form-label">
                     Total
                   </label>
-                  <input ref={inputTotal} type="number" min={0} className="form-control" id="input-total" />
+                  <input ref={inputTotal} onChange={() => (inputTempTotal.current.textContent = formatRupiah(inputTotal.current.value, "Rp "))} required type="number" min={0} className="form-control" id="input-total" />
+                  <div ref={inputTempTotal} className="fw-bold text-muted mt-1"></div>
                 </div>
               </div>
               <div className="modal-footer">

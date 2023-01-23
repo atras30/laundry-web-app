@@ -55,8 +55,7 @@ export default function SubOrder({ calculateTotalPrice, subOrders, index, catego
         <option>Pilih Jenis Laundry</option>
         {categories?.map((category) => (
           <option key={category.id} value={category.id}>
-            {/* {console.log(category)} */}
-            {category.title} - {`${category.price_text}`}
+            {category.title} ... {`${category.price_text}`}
           </option>
         ))}
       </select>
