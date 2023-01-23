@@ -1,9 +1,10 @@
-import React, { useRef } from "react";
+import React from "react";
 import DatePicker from "react-datepicker";
 import { apiBaseUrl } from "../provider/ApiService";
 import axios from "axios";
 import Cookies from "universal-cookie";
 import { toast } from "react-toastify";
+import { format } from "date-fns";
 
 export default function ChangeCreatedAtForm({ hideModal, fetchOrder, startDate, setStartDate, orderId }) {
   function handleCreatedAtChange() {
@@ -13,7 +14,7 @@ export default function ChangeCreatedAtForm({ hideModal, fetchOrder, startDate, 
       .put(
         apiBaseUrl("/orders/created_at/" + orderId),
         {
-          created_at: startDate,
+          created_at: format(startDate, "dd-MM-yyyy"),
         },
         {
           headers: {
@@ -37,8 +38,8 @@ export default function ChangeCreatedAtForm({ hideModal, fetchOrder, startDate, 
         <DatePicker selected={startDate} onChange={(date) => setStartDate(date)} />
       </div>
       <div>
-        <button className="btn btn-primary" onClick={handleCreatedAtChange}>
-          Ubah tanggal Masuk
+        <button className="btn button-accent-purple" onClick={handleCreatedAtChange}>
+          Ubah
         </button>
       </div>
     </div>

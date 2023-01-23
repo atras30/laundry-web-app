@@ -1,22 +1,22 @@
 import { format, formatRelative } from "date-fns";
 import { id } from "date-fns/locale";
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { formatRupiah } from "../helper/helper";
 
 export default function OrderReport({ index, order }) {
-  const navigate = useNavigate();
-  console.log(order);
   return (
     <tr>
-      <td className="fw-bold">{index}</td>
-      <td>{order.customer.name}</td>
-      <td>{formatRupiah(order.price)}</td>
-      <td>{format(new Date(order?.created_at), "dd MMMM yyyy", { locale: id })}</td>
-      <td>
-        <button className="btn btn-primary" onClick={() => navigate("/orders?id=" + order.id)}>
+      <td className="text-center fw-bold">{index}</td>
+      <td className="text-center">{order.customer.name}</td>
+      <td className="text-center">{formatRupiah(order.price)}</td>
+      <td className="text-center">{order.status}</td>
+      <td className="text-center">{order.payment_status}</td>
+      <td className="text-center">{format(new Date(order?.created_at), "dd MMMM yyyy", { locale: id })}</td>
+      <td className="text-center">
+        <Link className="link link-primary" to={"/orders?id=" + order.id}>
           Lihat Detail
-        </button>
+        </Link>
       </td>
     </tr>
   );

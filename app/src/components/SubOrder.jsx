@@ -23,8 +23,8 @@ export default function SubOrder({ calculateTotalPrice, subOrders, index, catego
 
     let subOrder = subOrders.find((eachOrder) => eachOrder.id === index);
     subOrder.jenisLaundry = chosenCategory.title;
-    // console.log("Is price per unit ? ", parseInt(chosenCategory.is_price_per_unit) === parseInt(1));
-    subOrder.jumlah = `${weightInKg.current.value} ${parseInt(chosenCategory?.is_price_per_unit) === parseInt(1) ? "Unit" : "KG"}`;
+    console.log(chosenCategory);
+    subOrder.jumlah = `${weightInKg.current.value} ${parseInt(chosenCategory?.is_price_per_unit) === parseInt(1) ? "Unit" : parseInt(chosenCategory?.is_price_per_set) === parseInt(1) ? "Set" : "KG"}`;
     subOrder.hargaPerKilo = chosenCategory?.price;
 
     let subTotal = 0;

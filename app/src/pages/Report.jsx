@@ -11,7 +11,7 @@ import ExpenseSkeleton from "../components/skeleton/ExpenseSkeleton";
 import OrderReport from "../components/OrderReport";
 import "../styles/report.css";
 
-export default function Expense() {
+export default function Report() {
   const inputItem = useRef(null);
   const inputQuantity = useRef(null);
   const inputTotal = useRef(null);
@@ -101,7 +101,7 @@ export default function Expense() {
   function calculateTotalIncome() {
     let total = 0;
     filteredOrders.forEach((order) => {
-      total += parseInt(order.price);
+      if (order.payment_status === "Lunas") total += parseInt(order.price);
     });
     setTotalIncome(total);
   }
@@ -161,12 +161,8 @@ export default function Expense() {
       <div className="container">
         <div className="title expense text-center fw-bold fs-3 mb-3">Laporan Pengeluaran</div>
 
-        <button className="w-100 rounded-pill align-self-end add-item btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#add-item-modal">
-          Tambah Pengeluaran
-        </button>
-
         <div className="d-flex mb-3 justify-content-center align-items-center gap-2">
-          <select onChange={() => filterExpense(filterStartYear.current.value, filterStartDate.current.value)} ref={filterStartYear} className="form-select text-center rounded-pill" aria-label="Default select example">
+          <select onChange={() => filterExpense(filterStartYear.current.value, filterStartDate.current.value)} ref={filterStartYear} className="form-select btn btn-secondary text-center rounded-pill" aria-label="Default select example">
             <option value="">Filter Tahun</option>
             <option value="2023">2023</option>
             <option value="2024">2024</option>
@@ -174,7 +170,7 @@ export default function Expense() {
             <option value="2026">2026</option>
             <option value="2027">2027</option>
           </select>
-          <select onChange={() => filterExpense(filterStartYear.current.value, filterStartDate.current.value)} ref={filterStartDate} className="form-select text-center rounded-pill" aria-label="Default select example">
+          <select onChange={() => filterExpense(filterStartYear.current.value, filterStartDate.current.value)} ref={filterStartDate} className="form-select btn btn-secondary text-center rounded-pill" aria-label="Default select example">
             <option value="">Filter Bulan</option>
             <option value="0">Januari</option>
             <option value="1">Februari</option>
@@ -192,31 +188,37 @@ export default function Expense() {
           </select>
         </div>
 
-        <table className="table table-striped table-bordered text-center bg-light rounded overflow-hidden col-12">
-          <thead>
-            <tr className="bg-secondary text-white fw-bold rounded">
-              <td colSpan={3}>Ringkasan</td>
-            </tr>
-            <tr>
-              <th>Total Pengeluaran</th>
-              <th>Total Pemasukan</th>
-              <th>Total Pendapatan</th>
-            </tr>
-          </thead>
+        <button className="w-100 rounded-pill align-self-end add-item btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#add-item-modal">
+          Tambah Pengeluaran
+        </button>
 
-          <tbody>
-            <tr>
-              <td>{formatRupiah(totalExpense, "Rp ")}</td>
-              <td>{formatRupiah(totalIncome, "Rp ")}</td>
-              <td>{formatRupiah(totalExpense - totalIncome, "Rp ")}</td>
-            </tr>
-          </tbody>
-        </table>
+        <div style={{ overflowX: "scroll" }}>
+          <table className="table table-striped table-bordered text-center bg-light rounded overflow-hidden col-12">
+            <thead>
+              <tr className="purple-300 text-white fw-bold rounded">
+                <td colSpan={3}>Ringkasan</td>
+              </tr>
+              <tr>
+                <th>Total Pengeluaran</th>
+                <th>Total Pemasukan</th>
+                <th>Total Pendapatan</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr>
+                <td>{formatRupiah(totalExpense, "Rp ")}</td>
+                <td>{formatRupiah(totalIncome, "Rp ")}</td>
+                <td>{formatRupiah(totalExpense - totalIncome, "Rp ")}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
         <div className="report-table" style={{ overflowX: "scroll" }}>
           <table className="table table-striped table-bordered text-center bg-light rounded overflow-hidden col-12">
             <thead>
-              <tr className="bg-secondary text-white fw-bold rounded">
+              <tr className="purple-300 text-white fw-bold rounded">
                 <td colSpan={5}>Tabel Pengeluaran</td>
               </tr>
               <tr>
@@ -238,15 +240,17 @@ export default function Expense() {
         </div>
 
         <div className="report-table" style={{ overflowX: "scroll" }}>
-          <table className="table table-striped table-bordered text-center bg-light rounded overflow-hidden  col-12">
+          <table className="table table-striped table-bordered text-center bg-light rounded overflow-hidden text-center">
             <thead>
-              <tr className="bg-secondary text-white fw-bold rounded">
-                <td colSpan={5}>Tabel Pendapatan</td>
+              <tr className="purple-300 text-white fw-bold rounded">
+                <td colSpan={7}>Tabel Pendapatan</td>
               </tr>
               <tr>
                 <th>#</th>
                 <th>Customer</th>
                 <th>Total</th>
+                <th>Status</th>
+                <th>Status Pembayaran</th>
                 <th>Tanggal</th>
                 <th>Action</th>
               </tr>
@@ -291,11 +295,11 @@ export default function Expense() {
                   <div ref={inputTempTotal} className="fw-bold text-muted mt-1"></div>
                 </div>
               </div>
-              <div className="modal-footer">
-                <button ref={closeButton} type="button" className="btn btn-secondary" data-bs-dismiss="modal">
+              <div className="modal-footer d-flex justify-content-center align-items-center w-100 flex-nowrap">
+                <button ref={closeButton} type="button" className="btn button-accent-purple w-50" data-bs-dismiss="modal">
                   Batal
                 </button>
-                <button type="button" className="btn btn-primary" onClick={handleAddItem}>
+                <button type="button" className="btn button-accent-purple w-50" onClick={handleAddItem}>
                   Tambah
                 </button>
               </div>

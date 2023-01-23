@@ -39,6 +39,7 @@ export default function DetailOrder() {
       .get(apiBaseUrl(`/orders/${orderId}`))
       .then((response) => {
         const order = response.data.order;
+        console.log(order);
         setOrder(order);
         setStartDate(new Date(order.created_at));
 
@@ -325,7 +326,7 @@ export default function DetailOrder() {
                   </button>
 
                   <button className="btn btn button-accent-purple rounded-pill w-100" data-bs-toggle="modal" data-bs-target="#change-date-modal">
-                    <i class="bi bi-check-circle"></i> Ubah Tanggal
+                    <i className="bi bi-check-circle"></i> Ubah Tanggal
                   </button>
 
                   <button onClick={() => handleWhatsappChat(order?.status)} className="btn btn-success rounded-pill w-100 ">
@@ -382,14 +383,14 @@ export default function DetailOrder() {
         <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
           <div className="modal-content h-100">
             <div className="modal-header">
-              <h1 className="w-100 modal-title fs-5 text-center" id="exampleModalLabel">
+              <h1 className="w-100 modal-title fs-5 text-center fw-bold" id="exampleModalLabel">
                 Ubah Tanggal
               </h1>
             </div>
 
             <div className="modal-body">
-              <select ref={inputChangeDate} class="form-select" onChange={() => setChangeDate(inputChangeDate.current.value)}>
-                <option selected>Pilih Tanggal</option>
+              <select ref={inputChangeDate} className="form-select" onChange={() => setChangeDate(inputChangeDate.current.value)}>
+                <option defaultChecked>Pilih Tanggal</option>
                 <option value="created_at">Tanggal Masuk</option>
                 <option value="done_at">Tanggal Selesai</option>
               </select>
@@ -397,7 +398,7 @@ export default function DetailOrder() {
               {changeDate === "created_at" ? <ChangeCreatedAtForm hideModal={hideModal} fetchOrder={fetchOrder} orderId={order?.id} startDate={startDate} setStartDate={setStartDate} /> : changeDate === "done_at" ? <ChangeDoneAtForm hideModal={hideModal} fetchOrder={fetchOrder} orderId={order?.id} finishDate={finishDate} setFinishDate={setFinishDate} /> : null}
             </div>
             <div className="modal-footer">
-              <button id="change-date-modal-back-button" type="button" className="btn btn-secondary w-100" data-bs-dismiss="modal">
+              <button id="change-date-modal-back-button" type="button" className="btn button-accent-purple w-100" data-bs-dismiss="modal">
                 Kembali
               </button>
             </div>

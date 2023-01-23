@@ -4,6 +4,7 @@ import { apiBaseUrl } from "../provider/ApiService";
 import axios from "axios";
 import Cookies from "universal-cookie";
 import { toast } from "react-toastify";
+import { format } from "date-fns";
 
 export default function ChangeDoneAtForm({ hideModal, fetchOrder, finishDate, setFinishDate, orderId }) {
   function handleCreatedAtChange() {
@@ -13,7 +14,7 @@ export default function ChangeDoneAtForm({ hideModal, fetchOrder, finishDate, se
       .put(
         apiBaseUrl("/orders/done_at/" + orderId),
         {
-          done_at: finishDate,
+          done_at: format(finishDate, "dd-MM-yyyy"),
         },
         {
           headers: {
@@ -32,13 +33,13 @@ export default function ChangeDoneAtForm({ hideModal, fetchOrder, finishDate, se
   }
 
   return (
-    <div className="d-flex mt-3 justify-content-evenly align-items-center">
+    <div className="d-flex mt-3 justify-content-evenly align-items-center gap-2">
       <div>
-        <DatePicker selected={finishDate} onChange={(date) => setFinishDate(date)} />
+        <DatePicker dateFormat="dd/MM/yyyy" selected={finishDate} onChange={(date) => setFinishDate(date)} />
       </div>
       <div>
-        <button className="btn btn-primary" onClick={handleCreatedAtChange}>
-          Ubah tanggal Selesai
+        <button className="btn button-accent-purple" onClick={handleCreatedAtChange}>
+          Ubah
         </button>
       </div>
     </div>

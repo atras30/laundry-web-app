@@ -24,7 +24,7 @@ export default function Customer({ deleteCustomer, selectedEditCustomer, custome
           <i className="bi bi-whatsapp me-2"></i>Chat Whatsapp
         </a>
         <button data-bs-toggle="modal" data-bs-target={`#delete-modal-${customer.id}`} className="btn btn-danger w-100 fw-bold rounded-pill">
-          <i class="bi bi-trash"></i> Hapus Customer
+          <i className="bi bi-trash"></i> Hapus Customer
         </button>
       </div>
 

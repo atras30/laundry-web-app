@@ -17,7 +17,7 @@ import OrderHistory from "./pages/OrderHistory";
 import "./styles/global.css";
 import ApplicationNotFound from "./pages/ApplicationNotFound";
 import Aos from "aos";
-import Expense from "./pages/Expense";
+import Report from "./pages/Report";
 import PrintReport from "./pages/PrintReport";
 
 export default function App() {
@@ -44,7 +44,7 @@ export default function App() {
           <Route path="/admin/customers" element={<Customers />}></Route>
           <Route path="/orders/add" element={<AddOrder />}></Route>
           <Route path="/orders" element={<DetailOrder />}></Route>
-          <Route path="/admin/report" element={<Expense />}></Route>
+          <Route path="/admin/report" element={<Report />}></Route>
           <Route path="/admin/report/print" element={<PrintReport />}></Route>
           <Route path="/not_found" element={<ApplicationNotFound />}></Route>
         </Routes>

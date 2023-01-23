@@ -23,6 +23,7 @@ export default function Dashboard() {
     fetchCategories();
     checkRedirectToken();
     initTaglineTypeIt();
+    checkToken();
   }, []);
 
   function initTaglineTypeIt() {
@@ -31,6 +32,26 @@ export default function Dashboard() {
     }).go();
   }
 
+  function checkToken() {
+    if (!new Cookies().get("token")) return;
+
+    // If the user have token in their cookies, check if the token is still valid in database.
+    axios
+      .get(apiBaseUrl("/auth/users"), {
+        headers: {
+          Authorization: new Cookies().get("token"),
+        },
+      })
+      .catch((error) => {
+        // if token is not valid, then delete its token and redirect back and refresh the page.
+        if (error.response.request.status === 401) {
+          new Cookies().remove("token");
+          window.location.href = "";
+        }
+      });
+  }
+
+  // Check if the user is logged in using login by google ?
   const checkRedirectToken = () => {
     const token = searchParams.get("token");
     if (!token) return;

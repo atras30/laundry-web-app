@@ -151,7 +151,7 @@ class OrderController extends Controller
             "done_at" => "required"
         ]);
 
-        $order->done_at = Carbon::parse($request->done_at);
+        $order->done_at = Carbon::parse($request->done_at, "Asia/Jakarta");
         $order->save();
 
         return Response()->json([
