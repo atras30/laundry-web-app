@@ -36,6 +36,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put("/orders/done_at/{id}", [OrderController::class, "updateDoneAt"]);
     Route::get("/expenses", [ExpenseController::class, "index"]);
     Route::post("/expenses", [ExpenseController::class, "store"]);
+    Route::delete("/expenses/{id}", [ExpenseController::class, "destroy"]);
 });
 
 Route::post("/auth/login", [AuthenticationController::class, "login"]);

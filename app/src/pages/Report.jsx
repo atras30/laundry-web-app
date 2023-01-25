@@ -63,16 +63,6 @@ export default function Report() {
       .catch((error) => console.log(error));
   }
 
-  useEffect(() => {
-    fetchExpenses();
-    fetchOrders();
-  }, []);
-
-  useEffect(() => {
-    calculateTotalExpense();
-    calculateTotalIncome();
-  }, [filteredExpense, filteredOrders]);
-
   function fetchOrders() {
     axios
       .get(apiBaseUrl("/orders"), {
@@ -156,6 +146,16 @@ export default function Report() {
     setFilteredOrders(filteredOrders);
   }
 
+  useEffect(() => {
+    fetchExpenses();
+    fetchOrders();
+  }, []);
+
+  useEffect(() => {
+    calculateTotalExpense();
+    calculateTotalIncome();
+  }, [filteredExpense, filteredOrders]);
+
   return (
     <MasterLayout>
       <div className="container">
@@ -192,34 +192,32 @@ export default function Report() {
           Tambah Pengeluaran
         </button>
 
-        <div style={{ overflowX: "scroll" }}>
-          <table className="table table-striped table-bordered text-center bg-light rounded overflow-hidden col-12">
-            <thead>
-              <tr className="purple-300 text-white fw-bold rounded">
-                <td colSpan={3}>Ringkasan</td>
-              </tr>
-              <tr>
-                <th>Total Pengeluaran</th>
-                <th>Total Pemasukan</th>
-                <th>Total Pendapatan</th>
-              </tr>
-            </thead>
+        <table className="table table-striped table-bordered text-center bg-light rounded overflow-hidden col-12">
+          <thead>
+            <tr className="purple-300 text-white fw-bold rounded">
+              <td colSpan={3}>Ringkasan</td>
+            </tr>
+            <tr>
+              <th>Total Pengeluaran</th>
+              <th>Total Pemasukan</th>
+              <th>Total Pendapatan</th>
+            </tr>
+          </thead>
 
-            <tbody>
-              <tr>
-                <td>{formatRupiah(totalExpense, "Rp ")}</td>
-                <td>{formatRupiah(totalIncome, "Rp ")}</td>
-                <td>{formatRupiah(totalExpense - totalIncome, "Rp ")}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+          <tbody>
+            <tr>
+              <td>{formatRupiah(totalExpense, "Rp ")}</td>
+              <td>{formatRupiah(totalIncome, "Rp ")}</td>
+              <td>{formatRupiah(totalIncome - totalExpense, totalIncome - totalExpense < 0 ? "Rp -" : "Rp ")}</td>
+            </tr>
+          </tbody>
+        </table>
 
         <div className="report-table" style={{ overflowX: "scroll" }}>
           <table className="table table-striped table-bordered text-center bg-light rounded overflow-hidden col-12">
             <thead>
               <tr className="purple-300 text-white fw-bold rounded">
-                <td colSpan={5}>Tabel Pengeluaran</td>
+                <td colSpan={6}>Tabel Pengeluaran</td>
               </tr>
               <tr>
                 <th>#</th>
@@ -227,13 +225,14 @@ export default function Report() {
                 <th>Jumlah</th>
                 <th>Total</th>
                 <th>Tanggal</th>
+                <th>Action</th>
               </tr>
             </thead>
 
             <tbody>
               {isFetchingExpense && <ExpenseSkeleton />}
               {filteredExpense?.map((expense, index) => (
-                <ExpenseItem key={expense.id} expense={expense} index={index + 1}></ExpenseItem>
+                <ExpenseItem fetchExpenses={fetchExpenses} key={expense.id} expense={expense} index={index + 1}></ExpenseItem>
               ))}
             </tbody>
           </table>
@@ -243,7 +242,7 @@ export default function Report() {
           <table className="table table-striped table-bordered text-center bg-light rounded overflow-hidden text-center">
             <thead>
               <tr className="purple-300 text-white fw-bold rounded">
-                <td colSpan={7}>Tabel Pendapatan</td>
+                <td colSpan={8}>Tabel Pendapatan</td>
               </tr>
               <tr>
                 <th>#</th>
@@ -251,7 +250,8 @@ export default function Report() {
                 <th>Total</th>
                 <th>Status</th>
                 <th>Status Pembayaran</th>
-                <th>Tanggal</th>
+                <th>Tanggal Masuk</th>
+                <th>Tanggal Selesai</th>
                 <th>Action</th>
               </tr>
             </thead>

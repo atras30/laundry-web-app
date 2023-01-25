@@ -17,7 +17,7 @@ export default function Dashboard() {
   const [priceList, setPriceList] = useState([]);
   const [expressPriceList, setExpressPriceList] = useState([]);
   const [instantPriceList, setInstantPriceList] = useState([]);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
     fetchCategories();

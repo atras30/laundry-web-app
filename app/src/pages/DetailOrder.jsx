@@ -16,7 +16,7 @@ import ChangeDoneAtForm from "../components/ChangeDoneAtForm";
 
 export default function DetailOrder() {
   const [order, setOrder] = useState(null);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const [isFetchingDetailOrder, setIsFetchingDetailOrder] = useState(true);
   const [startDate, setStartDate] = useState(new Date());
   const [finishDate, setFinishDate] = useState(new Date());
@@ -39,7 +39,10 @@ export default function DetailOrder() {
       .get(apiBaseUrl(`/orders/${orderId}`))
       .then((response) => {
         const order = response.data.order;
-        console.log(order);
+
+        // Save last history card for scrolling back to the latest user's scroll
+        localStorage.setItem("lastOrderDetailId", order.id);
+
         setOrder(order);
         setStartDate(new Date(order.created_at));
 

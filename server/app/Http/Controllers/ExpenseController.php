@@ -31,7 +31,7 @@ class ExpenseController extends Controller
     {
         $validated = $request->validate([
             'item' => "string|required",
-            'quantity' => "numeric|required",
+            'quantity' => "string|required",
             'total' => "numeric|required",
         ]);
 
@@ -73,6 +73,14 @@ class ExpenseController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $expense = Expense::findOrFail($id);
+
+        $expenseName = $expense->item;
+
+        $expense->delete();
+
+        return response()->json([
+            "message" => "Berhasil menghapus item " . $expenseName . ".",
+        ], Response::HTTP_OK);
     }
 }

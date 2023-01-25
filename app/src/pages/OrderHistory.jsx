@@ -36,6 +36,14 @@ export default function OrderHistory() {
       });
   }
 
+  useEffect(() => {
+    const lastCard = document.getElementById(`order-${localStorage.getItem("lastOrderDetailId")}`);
+
+    if (!lastCard) return;
+
+    window.scrollTo(0, lastCard.offsetTop);
+  }, [orders]);
+
   async function fetchOrders() {
     const response = await axios.get(apiBaseUrl("/orders"));
     // console.log(response.data.orders);

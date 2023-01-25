@@ -45,7 +45,7 @@ export default function NavbarAdmin() {
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
           <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
             <li className="nav-item">
-              <Link className="text-white nav-link active" to="/admin">
+              <Link onClick={() => localStorage.removeItem("lastOrderDetailId")} className="text-white nav-link active" to="/admin">
                 Daftar Order
               </Link>
             </li>
