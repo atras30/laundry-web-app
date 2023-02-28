@@ -54,16 +54,21 @@ export default function NavbarAdmin() {
                 Daftar Customer
               </Link>
             </li>
+            {/* <li className="nav-item">
+              <Link className="text-white nav-link active" to={"/categories"}>
+                Category
+              </Link>
+            </li> */}
             <li className="nav-item">
               <Link className="text-white nav-link active" to="/admin/report">
                 Laporan Keuangan
               </Link>
             </li>
-            <li className="nav-item">
+            {/* <li className="nav-item">
               <Link className="text-white nav-link active" to={"/admin/report/print"}>
                 Cetak Laporan
               </Link>
-            </li>
+            </li> */}
             <li className="nav-item">
               <Link className="text-white nav-link active" onClick={() => (window.location.href = "https://drive.google.com/drive/u/0/folders/1DFmnM9N4erE2PmtIXJCpp_g43KNEgxdc")}>
                 Aplikasi Printer

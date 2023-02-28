@@ -18,6 +18,7 @@ import "./styles/global.css";
 import ApplicationNotFound from "./pages/ApplicationNotFound";
 import Aos from "aos";
 import Report from "./pages/Report";
+import Category from "./pages/Category";
 import PrintReport from "./pages/PrintReport";
 
 export default function App() {
@@ -46,6 +47,7 @@ export default function App() {
           <Route path="/orders" element={<DetailOrder />}></Route>
           <Route path="/admin/report" element={<Report />}></Route>
           <Route path="/admin/report/print" element={<PrintReport />}></Route>
+          <Route path="/categories" element={<Category />}></Route>
           <Route path="/not_found" element={<ApplicationNotFound />}></Route>
         </Routes>
       </HashRouter>

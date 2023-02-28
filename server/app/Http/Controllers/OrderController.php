@@ -14,7 +14,20 @@ class OrderController extends Controller
 {
     public function getAllOrders()
     {
-        $orders = Order::with("customer")->with("sub_orders")->get()->sortByDesc("created_at")->values();
+        $page = request("page");
+
+        $ordersQuery = Order::whereHas("customer", function ($query) {
+            $filter = request("filter");
+            $query->where("name", "like", "%{$filter}%");
+        })
+            ->with(["customer", "sub_orders"])
+            ->skip(10 * $page)
+            ->take(10);
+
+        $orders = $ordersQuery
+            ->get()
+            ->sortByDesc("created_at")
+            ->values();
 
         foreach ($orders as $order) {
             foreach ($order->sub_orders as $sub_order) {
@@ -42,6 +55,8 @@ class OrderController extends Controller
 
         return Response()->json([
             "message" => "Successfully fetched orders.",
+            "count" => $orders->count(),
+            "isNextPageAvailable" => $ordersQuery->count() > $page + 1 * 10 ? true : false,
             "orders" => $orders
         ], Response::HTTP_OK);
     }

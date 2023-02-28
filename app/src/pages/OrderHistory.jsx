@@ -11,6 +11,8 @@ export default function OrderHistory() {
   const [initOrders, setInitOrders] = useState([]);
   const [orders, setOrders] = useState([]);
   const [isFetchingOrders, setIsFetchingOrders] = useState(true);
+  const [currentOrderPage, setCurrentOrderPage] = useState(0);
+  const [orderFilter, setOrderFilter] = useState("");
   const navigate = useNavigate();
   const inputCustomerName = useRef(null);
   const filterOrderStatus = useRef(null);
@@ -45,7 +47,7 @@ export default function OrderHistory() {
   }, [orders]);
 
   async function fetchOrders() {
-    const response = await axios.get(apiBaseUrl("/orders"));
+    const response = await axios.get(apiBaseUrl(`/orders?page=${currentOrderPage}&filter=${orderFilter}`));
     // console.log(response.data.orders);
     setInitOrders(response.data.orders);
     setOrders(response.data.orders);

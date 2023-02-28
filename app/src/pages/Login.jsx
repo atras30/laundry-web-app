@@ -110,13 +110,13 @@ export default function Login() {
           <form onSubmit={submitHandler} className="login-form">
             <div className="mb-3 position-relative">
               <i className="bi bi-person-fill position-absolute form-icon bootstrap-icon fs-4"></i>
-              <input placeholder="Email" ref={email} type="email" className="shadow-none form-control login-form-control" id="exampleInputEmail1" aria-describedby="emailHelp" />
+              <input tabIndex={100} placeholder="Email" ref={email} type="email" className="shadow-none form-control login-form-control" id="exampleInputEmail1" aria-describedby="emailHelp" />
             </div>
             <div className="mb-3 position-relative">
               <i className="bi bi-lock-fill position-absolute form-icon bootstrap-icon fs-4"></i>
-              <input ref={password} type="password" className="form-control login-form-control" id="exampleInputPassword1" placeholder="Password" />
+              <input tabIndex={101} ref={password} type="password" className="form-control login-form-control" id="exampleInputPassword1" placeholder="Password" />
             </div>
-            <button type="submit" className="fw-bold text-white border border-2 btn button-login-accent-purple w-100 fw-semibold">
+            <button tabIndex={102} type="submit" className="fw-bold text-white border border-2 btn button-login-accent-purple w-100 fw-semibold">
               Login
             </button>
           </form>
@@ -125,7 +125,7 @@ export default function Login() {
             <i className="bi bi-google me-2"></i>
             Login With Google
           </button> */}
-          <button type="submit" onClick={handleLoginWithGoogleRedirect} className="fw-bold text-white border border-2 btn button-login-accent-purple w-100 fw-semibold">
+          <button tabIndex={103} type="submit" onClick={handleLoginWithGoogleRedirect} className="fw-bold text-white border border-2 btn button-login-accent-purple w-100 fw-semibold">
             <i className="bi bi-google me-2"></i> Login With Google
           </button>
         </div>
