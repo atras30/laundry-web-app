@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Customer;
+use App\Models\SubOrder;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -24,10 +25,10 @@ class OrderFactory extends Factory
 
         return [
             "customer_id" => $customerIds[array_rand($customerIds)],
-            "price" => fake()->randomNumber(5),
+            "price" => 0,
             "status" => $statusOptions[array_rand($statusOptions)],
+            "payment_status" => $paymentStatus[array_rand($paymentStatus)],
             "notes" => fake()->words(3, true),
-            "payment_status" => $paymentStatus[array_rand($paymentStatus)]
         ];
     }
 
