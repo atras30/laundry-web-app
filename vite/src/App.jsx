@@ -29,7 +29,7 @@ export default function App() {
     });
 
     // Bootstrap javascript import
-    require("bootstrap/dist/js/bootstrap.bundle.min.js");
+    import("bootstrap/dist/js/bootstrap.bundle.min.js");
 
     // axios default configurations
     axios.defaults.withCredentials = true;

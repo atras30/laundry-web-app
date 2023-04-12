@@ -4,4 +4,4 @@ REACT_APP_BASE_URL=http://localhost:8000
 # REACT_APP_BASE_API_URL=https://api.cintalaundry.atras.my.id/api
 # REACT_APP_BASE_URL=https://api.cintalaundry.atras.my.id/
 
-REACT_APP_GOOGLE_CLIENT_ID=974140639387-h2ab54m82crefolmnjejvuket4lpnmia.apps.googleusercontent.com
+REACT_APP_GOOGLE_CLIENT_ID=[YOUR_GOOGLE_CLIENT_ID]
