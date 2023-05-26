@@ -22,6 +22,7 @@
     "react-router-dom": "^6.6.1",
     "react-scripts": "5.0.1",
     "react-toastify": "^9.1.1",
+    "react-webcam": "^7.0.1",
     "swiper": "^8.4.5",
     "typeit": "^8.7.1",
     "universal-cookie": "^4.0.4",

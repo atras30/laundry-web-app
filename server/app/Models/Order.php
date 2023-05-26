@@ -24,4 +24,9 @@ class Order extends Model
     {
         return $this->hasMany(SubOrder::class);
     }
+
+    public function order_uploads()
+    {
+        return $this->hasMany(OrderUpload::class);
+    }
 }

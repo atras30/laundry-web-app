@@ -3,218 +3,338 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\Customer;
 use App\Models\Order;
+use App\Models\OrderUpload;
 use App\Models\SubOrder;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class OrderController extends Controller
 {
-  public function getAllOrders()
-  {
-    $orders = Order::with("customer")->with("sub_orders")->get()->sortByDesc("created_at")->take(50)->values();
+    public function getAllOrders()
+    {
+        $orders = Order::with("customer")->with("sub_orders")->get()->sortByDesc("created_at")->take(50)->values();
 
-    foreach ($orders as $order) {
-      foreach ($order->sub_orders as $sub_order) {
-        $priceText = "";
-        $category = Category::firstWhere("title", $sub_order->type);
+        foreach ($orders as $order) {
+            foreach ($order->sub_orders as $sub_order) {
+                $priceText = "";
+                $category = Category::firstWhere("title", $sub_order->type);
 
-        $priceText = "Rp " . number_format((int)$category->price, 0, ',', '.');
+                $priceText = "Rp " . number_format((int)$category->price, 0, ',', '.');
 
-        if ($category->price_per_multiplied_kg) {
-          $priceText .= " / {$category->price_per_multiplied_kg} KG";
-        } else if ($category->is_price_per_unit) {
-          $priceText .= " / Unit";
-        } else if ($category->is_price_per_set) {
-          $priceText .= " / Set";
-        } else {
-          $priceText .= " / KG";
+                if ($category->price_per_multiplied_kg) {
+                    $priceText .= " / {$category->price_per_multiplied_kg} KG";
+                } else if ($category->is_price_per_unit) {
+                    $priceText .= " / Unit";
+                } else if ($category->is_price_per_set) {
+                    $priceText .= " / Set";
+                } else {
+                    $priceText .= " / KG";
+                }
+
+                $sub_order->price_text = $priceText;
+                $sub_order->total_text = "Rp " . number_format($sub_order->total, 0, ',', '.');
+            }
+
+            // dd($order);
         }
 
-        $sub_order->price_text = $priceText;
-        $sub_order->total_text = "Rp " . number_format($sub_order->total, 0, ',', '.');
-      }
-
-      // dd($order);
-    }
-
-    return Response()->json([
-      "message" => "Successfully fetched orders.",
-      "total" => Order::count(),
-      "orders" => $orders
-    ], Response::HTTP_OK);
-  }
-
-  public function getOrderById($id)
-  {
-    $order = Order::with("customer", "sub_orders")->where("id", $id)->get()->first();
-
-    foreach ($order->sub_orders as $sub_order) {
-      $priceText = "";
-      $category = Category::firstWhere("title", $sub_order->type);
-      $priceText = "Rp " . number_format($category->price, 0, ',', '.');
-
-      if ($category->price_per_multiplied_kg) {
-        $priceText .= " / {$category->price_per_multiplied_kg} KG";
-      } else if ($category->is_price_per_unit) {
-        $priceText .= " / Unit";
-      } else if ($category->is_price_per_set) {
-        $priceText .= " / Set";
-      } else {
-        $priceText .= " / KG";
-      }
-
-      $sub_order->price_text = $priceText;
-      $sub_order->total_text = "Rp " . number_format($sub_order->total, 0, ',', '.');
-    }
-
-
-    return Response()->json([
-      "message" => "Berhasil mengambil order.",
-      "order" => $order
-    ], Response::HTTP_OK);
-  }
-
-  public function delete($id)
-  {
-    $order = Order::findOrFail($id);
-    $order->delete();
-
-    return Response()->json([
-      "message" => "Berhasil menghapus order.",
-    ], Response::HTTP_OK);
-  }
-
-  public function updateStatus(Request $request, $id)
-  {
-    $order = Order::findOrFail($id);
-
-    $order->status = $request->status;
-    $order->save();
-
-    return Response()->json([
-      "message" => "Berhasil mengubah status order.",
-    ], Response::HTTP_CREATED);
-  }
-
-  public function updatePaymentStatus(Request $request, $id)
-  {
-    $order = Order::findOrFail($id);
-
-    $order->payment_status = $request->payment_status;
-    $order->save();
-
-    return Response()->json([
-      "message" => "Berhasil mengubah status pembayaran.",
-    ], Response::HTTP_CREATED);
-  }
-
-  public function updateNotes(Request $request, $id)
-  {
-    $order = Order::findOrFail($id);
-
-    $notes = $request->notes;
-
-    if (!$notes) {
-      $notes = "";
-    }
-
-    $order->notes = $notes;
-    $order->save();
-
-    return Response()->json([
-      "message" => "Berhasil mengubah catatan.",
-    ], Response::HTTP_CREATED);
-  }
-  public function updateCreatedAt(Request $request, $id)
-  {
-    $order = Order::findOrFail($id);
-
-    $request->validate([
-      "created_at" => "required"
-    ]);
-
-    $order->created_at = $request->created_at;
-    $order->save();
-
-    return Response()->json([
-      "message" => "Berhasil mengubah Tanggal Masuk.",
-    ], Response::HTTP_CREATED);
-  }
-
-  public function updateDoneAt(Request $request, $id)
-  {
-    $order = Order::findOrFail($id);
-
-    $request->validate([
-      "done_at" => "required"
-    ]);
-
-    $order->done_at = Carbon::parse($request->done_at, "Asia/Jakarta");
-    $order->save();
-
-    return Response()->json([
-      "message" => "Berhasil mengubah Tanggal Selesai.",
-    ], Response::HTTP_CREATED);
-  }
-
-  public function order(Request $request)
-  {
-    $validated = $request->validate([
-      "customer_id" => "required|numeric",
-      "orders" => "required|string",
-      "notes" => "present",
-      "payment_status" => "required|string",
-      "price" => "required|numeric"
-    ], [
-      'customer_id.required' => 'Anda belum memilih Customer!',
-    ]);
-
-    $subOrders = json_decode($validated['orders']);
-    if (count($subOrders) == 0) {
-      return Response()->json([
-        "message" => "Jenis layanan minimal harus ada satu",
-      ], Response::HTTP_NOT_ACCEPTABLE);
-    }
-
-    if (!$validated['notes']) $validated['notes'] = "";
-    $order = Order::create($validated);
-
-    foreach ($subOrders as $subOrder) {
-      $validator = Validator::make(collect($subOrder)->toArray(), [
-        "jenisLaundry" => "required",
-        "jumlah" => "required",
-        "hargaPerKilo" => "present",
-        "subTotal" => "present",
-      ], [
-        "jenisLaundry.required" => "Jenis Layanan dan Berat harus diisi",
-        "jumlah.required" => "Jumlah harus diisi",
-      ]);
-
-      if ($validator->fails()) {
         return Response()->json([
-          "message" => $validator->errors()->first(),
-        ], Response::HTTP_NOT_ACCEPTABLE);
-      }
-
-      $validated = $validator->validated();
-
-      SubOrder::create([
-        "order_id" => $order->id,
-        "type" => $validated['jenisLaundry'],
-        "price_per_kg" => $validated['hargaPerKilo'],
-        "is_price_per_unit" => Category::firstWhere("title", $validated['jenisLaundry'])->is_price_per_unit,
-        "price_per_multiplied_kg" => Category::firstWhere("title", $validated['jenisLaundry'])->price_per_multiplied_kg,
-        "amount" => $validated['jumlah'],
-        "total" => $validated['subTotal'],
-      ]);
+            "message" => "Successfully fetched orders.",
+            "total" => Order::count(),
+            "orders" => $orders
+        ], Response::HTTP_OK);
     }
 
-    return Response()->json([
-      "message" => "Pesanan berhasil dibuat.",
-      "order" => $order
-    ], Response::HTTP_CREATED);
-  }
+    public function getOrderById($id)
+    {
+        $order = Order::with("customer", "sub_orders")->where("id", $id)->get()->first();
+
+        foreach ($order->sub_orders as $sub_order) {
+            $priceText = "";
+            $category = Category::firstWhere("title", $sub_order->type);
+            $priceText = "Rp " . number_format($category->price, 0, ',', '.');
+
+            if ($category->price_per_multiplied_kg) {
+                $priceText .= " / {$category->price_per_multiplied_kg} KG";
+            } else if ($category->is_price_per_unit) {
+                $priceText .= " / Unit";
+            } else if ($category->is_price_per_set) {
+                $priceText .= " / Set";
+            } else {
+                $priceText .= " / KG";
+            }
+
+            $sub_order->price_text = $priceText;
+            $sub_order->total_text = "Rp " . number_format($sub_order->total, 0, ',', '.');
+        }
+
+        $order['image_path'] = url(asset("storage/" . $order->upload_path));
+
+        return Response()->json([
+            "message" => "Berhasil mengambil order.",
+            "order" => $order
+        ], Response::HTTP_OK);
+    }
+
+    public function delete($id)
+    {
+        $order = Order::findOrFail($id);
+        $order->delete();
+
+        return Response()->json([
+            "message" => "Berhasil menghapus order.",
+        ], Response::HTTP_OK);
+    }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $order = Order::findOrFail($id);
+
+        $order->status = $request->status;
+        $order->save();
+
+        return Response()->json([
+            "message" => "Berhasil mengubah status order.",
+        ], Response::HTTP_CREATED);
+    }
+
+    public function updatePaymentStatus(Request $request, $id)
+    {
+        $order = Order::findOrFail($id);
+
+        $order->payment_status = $request->payment_status;
+        $order->save();
+
+        return Response()->json([
+            "message" => "Berhasil mengubah status pembayaran.",
+        ], Response::HTTP_CREATED);
+    }
+
+    public function updateNotes(Request $request, $id)
+    {
+        $order = Order::findOrFail($id);
+
+        $notes = $request->notes;
+
+        if (!$notes) {
+            $notes = "";
+        }
+
+        $order->notes = $notes;
+        $order->save();
+
+        return Response()->json([
+            "message" => "Berhasil mengubah catatan.",
+        ], Response::HTTP_CREATED);
+    }
+    public function updateCreatedAt(Request $request, $id)
+    {
+        $order = Order::findOrFail($id);
+
+        $request->validate([
+            "created_at" => "required"
+        ]);
+
+        $order->created_at = $request->created_at;
+        $order->save();
+
+        return Response()->json([
+            "message" => "Berhasil mengubah Tanggal Masuk.",
+        ], Response::HTTP_CREATED);
+    }
+
+    public function updateDoneAt(Request $request, $id)
+    {
+        $order = Order::findOrFail($id);
+
+        $request->validate([
+            "done_at" => "required"
+        ]);
+
+        $order->done_at = Carbon::parse($request->done_at, "Asia/Jakarta");
+        $order->save();
+
+        return Response()->json([
+            "message" => "Berhasil mengubah Tanggal Selesai.",
+        ], Response::HTTP_CREATED);
+    }
+
+    public function getPhoto(Request $request, $orderId)
+    {
+        $request['orderId'] = $orderId;
+
+        $request->validate([
+            "orderId" => [
+                "required",
+                Rule::exists("orders", "id")
+            ],
+        ], [
+            "orderId.exists" => "Order is not exists",
+        ]);
+
+        $photo_path = OrderUpload::where("order_id", $orderId)
+                    ->select('upload_path', "id")
+                    ->get()
+                    ->map(function($o) {
+                        return [
+                            "upload_path" => asset('storage')."/".$o->upload_path,
+                            "id" => $o->id
+                        ];
+                    });
+
+        return $photo_path;
+    }
+
+    public function uploadPhoto(Request $request)
+    {
+        $request->validate([
+            "photo" => 'required|mimes:png,jpg,jpeg|max:4096',
+            "customerId" => [
+                "required",
+                Rule::exists("customers", "id")
+            ],
+            "orderId" => [
+                "required",
+                Rule::exists("orders", "id")
+            ],
+        ], [
+            "customerId.exists" => "Customer is not exists",
+            "orderId.exists" => "Order is not exists",
+        ]);
+
+        try {
+            $this->storePhoto($request->file('photo'), $request->customerId, $request->orderId);
+        } catch (\Exception $e) {
+            return response()->json([
+                "message" => $e->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        return response()->json([
+            "message" => "Add Photo Success"
+        ], Response::HTTP_OK);
+    }
+
+    public function deletePhoto(Request $request, $id)
+    {
+        $request['id'] = $id;
+
+        $request->validate([
+            "id" => [
+                "required",
+                Rule::exists("order_uploads", "id")
+            ],
+        ], [
+            "id.exists" => "Photo is not exists",
+        ]);
+
+        if (!$id) return response()->json([
+            "message" => "ID must be filled."
+        ], Response::HTTP_NOT_ACCEPTABLE);
+
+        $orderUpload = OrderUpload::find($id);
+        if (!$orderUpload) return response()->json([
+            "message" => "Record not found."
+        ], Response::HTTP_OK);
+
+        try {
+            Storage::delete($orderUpload->upload_path);
+            $orderUpload->delete();
+        } catch (\Exception $e) {
+            return response()->json([
+                "message" => "Delete Photo Success"
+            ], Response::HTTP_OK);
+        }
+
+        return response()->json([
+            "message" => "Delete Photo Success"
+        ], Response::HTTP_OK);
+    }
+
+    public function storePhoto($photo, $customerId, $orderId)
+    {
+        $directory = "assets/orders/photos/customer_id/{$customerId}/order_id/{$orderId}";
+        $path = $photo->store($directory);
+
+        try {
+            OrderUpload::create([
+                "order_id" => $orderId,
+                "upload_path" => $path
+            ]);
+        } catch (\Exception $e) {
+            return $e;
+        }
+
+        return $path;
+    }
+
+    public function order(Request $request)
+    {
+        $validated = $request->validate([
+            "customer_id" => "required|numeric",
+            "orders" => "required|string",
+            "notes" => "present",
+            "payment_status" => "required|string",
+            "price" => "required|numeric",
+            "photo" => 'mimes:png,jpg,jpeg|max:4096'
+        ], [
+            'customer_id.required' => 'Anda belum memilih Customer!',
+        ]);
+
+        $subOrders = json_decode($validated['orders']);
+        if (count($subOrders) == 0) {
+            return Response()->json([
+                "message" => "Jenis layanan minimal harus ada satu",
+            ], Response::HTTP_NOT_ACCEPTABLE);
+        }
+
+        if (!$validated['notes']) $validated['notes'] = "";
+
+        $order = Order::create($validated);
+
+        if (isset($validated['photo'])) {
+            $path = $this->storePhoto($request->file('photo'), $validated['customer_id'], $order->id);
+        }
+
+        foreach ($subOrders as $subOrder) {
+            $validator = Validator::make(collect($subOrder)->toArray(), [
+                "jenisLaundry" => "required",
+                "jumlah" => "required",
+                "hargaPerKilo" => "present",
+                "subTotal" => "present",
+            ], [
+                "jenisLaundry.required" => "Jenis Layanan dan Berat harus diisi",
+                "jumlah.required" => "Jumlah harus diisi",
+            ]);
+
+            if ($validator->fails()) {
+                return Response()->json([
+                    "message" => $validator->errors()->first(),
+                ], Response::HTTP_NOT_ACCEPTABLE);
+            }
+
+            $validated = $validator->validated();
+
+            SubOrder::create([
+                "order_id" => $order->id,
+                "type" => $validated['jenisLaundry'],
+                "price_per_kg" => $validated['hargaPerKilo'],
+                "is_price_per_unit" => Category::firstWhere("title", $validated['jenisLaundry'])->is_price_per_unit,
+                "price_per_multiplied_kg" => Category::firstWhere("title", $validated['jenisLaundry'])->price_per_multiplied_kg,
+                "amount" => $validated['jumlah'],
+                "total" => $validated['subTotal'],
+            ]);
+        }
+
+        return Response()->json([
+            "message" => "Pesanan berhasil dibuat.",
+            "order" => $order
+        ], Response::HTTP_CREATED);
+    }
 }
