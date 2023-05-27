@@ -13,13 +13,6 @@ import { formatRupiah } from "../helper/helper";
 import DetailOrderSkeleton from "../components/skeleton/DetailOrderSkeleton";
 import ChangeCreatedAtForm from "../components/ChangeCreatedAtForm";
 import ChangeDoneAtForm from "../components/ChangeDoneAtForm";
-import Webcam from "react-webcam";
-
-const videoConstraints = {
-  width: 1280,
-  height: 720,
-  facingMode: { exact: "environment" }
-};
 
 export default function DetailOrder() {
   const [order, setOrder] = useState(null);
@@ -39,16 +32,6 @@ export default function DetailOrder() {
   const [changeDate, setChangeDate] = useState(null);
   const [photoIdToBeDeleted, setPhotoIdToBeDeleted] = useState(null);
   const navigate = useNavigate();
-
-  // Camera
-  const WebcamComponent = () => <Webcam />;
-  const webcamRef = React.useRef(null);
-  const capture = React.useCallback(
-    () => {
-      const imageSrc = webcamRef.current.getScreenshot();
-    },
-    [webcamRef]
-  );
 
   useEffect(() => {
     fetchOrder();
@@ -272,6 +255,8 @@ export default function DetailOrder() {
   }
 
   function _renderOrderPhotos() {
+    console.log(photos)
+    
     return (
       <div>
         {photos.length === 0 ? (
@@ -466,7 +451,7 @@ export default function DetailOrder() {
                     style={{ fontSize: ".8rem", cursor: "pointer" }}
                     data-bs-toggle="modal"
                     data-bs-target="#add-photo-modal">
-                    <i class="bi bi-cloud-plus me-2 fs-5"></i>Tambah
+                    <i className="bi bi-cloud-plus me-2 fs-5"></i>Tambah
                   </button>
                   <div className="h-100 d-flex justify-content-center align-items-center">Foto</div>
                 </div>
@@ -743,37 +728,37 @@ export default function DetailOrder() {
           </div>
         </div>
 
-        <div class="modal fade" id="add-photo-modal" tabindex="-1" aria-labelledby="add-photo-modal" aria-hidden="true">
-          <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h1 class="modal-title fs-5" id="add-photo-label">
+        <div className="modal fade" id="add-photo-modal" tabIndex="-1" aria-labelledby="add-photo-modal" aria-hidden="true">
+          <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h1 className="modal-title fs-5" id="add-photo-label">
                   Tambah Foto
                 </h1>
                 <button
                   type="button"
-                  class="btn-close btn-input-photo-close"
+                  className="btn-close btn-input-photo-close"
                   data-bs-dismiss="modal"
                   aria-label="Close"></button>
               </div>
-              <div class="modal-body">
+              <div className="modal-body">
                 <form onSubmit={(e) => e.preventDefault()}>
-                  <div class="mb-3">
-                    <label for="formFile" class="form-label">
+                  <div className="mb-3">
+                    <label htmlFor="formFile" className="form-label">
                       Pilih Foto
                     </label>
-                    <input ref={inputPhoto} class="form-control" type="file" />
+                    <input ref={inputPhoto} className="form-control" type="file" />
                   </div>
                 </form>
               </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+              <div className="modal-footer">
+                <button type="button" className="btn btn-danger" data-bs-dismiss="modal">
                   Close
                 </button>
                 <button
                   onClick={handleAddPhoto}
                   type="button"
-                  class="btn button-accent-purple rounded purple-200 text-white">
+                  className="btn button-accent-purple rounded purple-200 text-white">
                   Tambah
                 </button>
               </div>

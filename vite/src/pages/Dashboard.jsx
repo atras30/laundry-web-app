@@ -12,26 +12,12 @@ import "swiper/css/navigation";
 import "swiper/css/effect-cards";
 import "../styles/dashboard.css";
 import TypeIt from "typeit";
-import Webcam from "react-webcam";
-import useWindowSize from "../hooks/useWIndowSize";
-
-const size = useWindowSize();
-const isLandscape = size.height <= size.width;
-const ratio = isLandscape ? size.width / size.height : size.height / size.width;
 
 export default function Dashboard() {
   const [priceList, setPriceList] = useState([]);
   const [expressPriceList, setExpressPriceList] = useState([]);
   const [instantPriceList, setInstantPriceList] = useState([]);
   const [searchParams] = useSearchParams();
-
-  const webcamRef = React.useRef(null);
-  const [imgSrc, setImgSrc] = React.useState(null);
-
-  const capture = React.useCallback(() => {
-    const imageSrc = webcamRef.current.getScreenshot();
-    setImgSrc(imageSrc);
-  }, [webcamRef, setImgSrc]);
 
   useEffect(() => {
     fetchCategories();
@@ -96,16 +82,6 @@ export default function Dashboard() {
   return (
     <MasterLayout>
       <div className="container">
-        <Webcam
-          height={size.height}
-          width={size.width}
-          ref={webcamRef}
-          screenshotFormat="image/jpeg"
-          videoConstraints={{ facingMode: { exact: "environment" }, aspectRatio: ratio }}
-        />
-        <button onClick={capture}>Capture photo</button>
-        {imgSrc && <img src={imgSrc} />}
-
         <section
           className="hero mb-5 px-3 d-flex justify-content-center align-items-center flex-column"
           style={{ borderRadius: "50%" }}>
