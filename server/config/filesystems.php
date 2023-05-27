@@ -32,7 +32,7 @@ return [
 
         'local' => [
             'driver' => 'local',
-            'root' => public_path('app'),
+            'root' => storage_path('app/public'),
             'throw' => false,
         ],
 
