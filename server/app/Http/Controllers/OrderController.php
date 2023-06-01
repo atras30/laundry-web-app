@@ -230,13 +230,13 @@ class OrderController extends Controller
     public function storePhoto($photo, $customerId, $orderId)
     {
         // Validation
-        $s3BaseUrl = env("S3_BUCKET");
-        if($s3BaseUrl == null) throw new \Exception("S3_BUCKET configuration is not set yet.");
+        $s3bucket = env("S3_BUCKET");
+        if($s3bucket == null) throw new \Exception("S3_BUCKET configuration is not set yet.");
 
         // Store Photo to s3
         $uuid = Uuid::uuid4()->toString();
         $path = Storage::disk("s3")->putFileAs("order_uploads/photos", $photo, "customer_id_{$customerId}_order_id_{$orderId}_UUID_{$uuid}.jpg");
-        $path = "{$s3BaseUrl}/{$path}";
+        $path = "{$s3bucket}/{$path}";
 
         try {
             // Store uploaded photo path to database
@@ -274,11 +274,18 @@ class OrderController extends Controller
         ], Response::HTTP_OK);
 
         try {
-            Storage::delete($orderUpload->upload_path);
+            $s3bucket = env("S3_BUCKET");
+            if($s3bucket == null) return response()->json([
+                "message" => "S3_BUCKET is not configured yet."
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+
+            $storagePath = str_replace($s3bucket, "",$orderUpload->upload_path);
+            Storage::disk("s3")->delete($storagePath);
+
             $orderUpload->delete();
         } catch (\Exception $e) {
             return response()->json([
-                "message" => "Delete Photo Success"
+                "message" => $e->getMessage()
             ], Response::HTTP_OK);
         }
 

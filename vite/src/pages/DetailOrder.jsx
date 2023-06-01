@@ -13,6 +13,7 @@ import { formatRupiah } from "../helper/helper";
 import DetailOrderSkeleton from "../components/skeleton/DetailOrderSkeleton";
 import ChangeCreatedAtForm from "../components/ChangeCreatedAtForm";
 import ChangeDoneAtForm from "../components/ChangeDoneAtForm";
+import Compressor from "compressorjs";
 
 export default function DetailOrder() {
   const [order, setOrder] = useState(null);
@@ -255,8 +256,8 @@ export default function DetailOrder() {
   }
 
   function _renderOrderPhotos() {
-    console.log(photos)
-    
+    console.log(photos);
+
     return (
       <div>
         {photos.length === 0 ? (
@@ -274,6 +275,7 @@ export default function DetailOrder() {
                   height={300}
                   className="w-100 img-thumbnail shadow-sm"
                   src={photo.upload_path}
+                  alt="Error"
                 />
                 <button
                   onClick={() => setPhotoIdToBeDeleted(photo.id)}
@@ -315,31 +317,39 @@ export default function DetailOrder() {
   }
 
   function handleAddPhoto() {
-    axios
-      .post(
-        apiBaseUrl("/orders/photos"),
-        {
-          photo: inputPhoto.current.files[0],
-          customerId: order.customer_id,
-          orderId: order.id,
-        },
-        {
-          headers: {
-            Authorization: new Cookies().get("token"),
-            Accept: "Application/json",
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      )
-      .then((response) => {
-        toast.success(response.data.message);
-        fetchPhotos();
-        // Close Modal
-        document.querySelector(".btn-input-photo-close").click();
-      })
-      .catch((error) => {
-        toast.error(error.response?.data?.message ?? error.message);
-      });
+    new Compressor(inputPhoto.current.files[0], {
+      quality: 0.1,
+      success(result) {
+        axios
+          .post(
+            apiBaseUrl("/orders/photos"),
+            {
+              photo: result,
+              customerId: order.customer_id,
+              orderId: order.id,
+            },
+            {
+              headers: {
+                Authorization: new Cookies().get("token"),
+                Accept: "Application/json",
+                "Content-Type": "multipart/form-data",
+              },
+            }
+          )
+          .then((response) => {
+            toast.success(response.data.message);
+            fetchPhotos();
+            // Close Modal
+            document.querySelector(".btn-input-photo-close").click();
+          })
+          .catch((error) => {
+            toast.error(error.response?.data?.message ?? error.message);
+          });
+      },
+      error(err) {
+        toast.error(err.message || "Image compressing failed.")
+      }
+    });
   }
 
   return (
@@ -728,7 +738,12 @@ export default function DetailOrder() {
           </div>
         </div>
 
-        <div className="modal fade" id="add-photo-modal" tabIndex="-1" aria-labelledby="add-photo-modal" aria-hidden="true">
+        <div
+          className="modal fade"
+          id="add-photo-modal"
+          tabIndex="-1"
+          aria-labelledby="add-photo-modal"
+          aria-hidden="true">
           <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div className="modal-content">
               <div className="modal-header">
