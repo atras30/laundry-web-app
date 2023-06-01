@@ -15,9 +15,11 @@ export default function Login() {
   const google = window.google;
 
   useEffect(() => {
+    console.log(import.meta.env.VITE_GOOGLE_CLIENT_ID);
+
     // Login by Google init
     google?.accounts?.id?.initialize({
-      client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID,
+      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
       callback: handleCredentialResponse,
     });
 

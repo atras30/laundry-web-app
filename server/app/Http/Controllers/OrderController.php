@@ -13,6 +13,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Ramsey\Uuid\Uuid;
 
 class OrderController extends Controller
 {
@@ -178,15 +179,20 @@ class OrderController extends Controller
             "orderId.exists" => "Order is not exists",
         ]);
 
+        $s3BaseUrl = env("S3_ENDPOINT");
+        if($s3BaseUrl == null) return response()->json([
+            "message" => "S3_ENDPOINT is not set yet"
+        ], Response::HTTP_INTERNAL_SERVER_ERROR);
+
         $photo_path = OrderUpload::where("order_id", $orderId)
-                    ->select('upload_path', "id")
-                    ->get()
-                    ->map(function($o) {
-                        return [
-                            "upload_path" => asset('storage')."/".$o->upload_path,
-                            "id" => $o->id
-                        ];
-                    });
+            ->select('upload_path', "id")
+            ->get()
+            ->map(function ($record) use($s3BaseUrl) {
+                return [
+                    "upload_path" => $s3BaseUrl.$record->upload_path,
+                    "id" => $record->id
+                ];
+            });
 
         return $photo_path;
     }
@@ -219,6 +225,30 @@ class OrderController extends Controller
         return response()->json([
             "message" => "Add Photo Success"
         ], Response::HTTP_OK);
+    }
+
+    public function storePhoto($photo, $customerId, $orderId)
+    {
+        // Validation
+        $s3BaseUrl = env("S3_BUCKET");
+        if($s3BaseUrl == null) throw new \Exception("S3_BUCKET configuration is not set yet.");
+
+        // Store Photo to s3
+        $uuid = Uuid::uuid4()->toString();
+        $path = Storage::disk("s3")->putFileAs("order_uploads/photos", $photo, "customer_id_{$customerId}_order_id_{$orderId}_UUID_{$uuid}.jpg");
+        $path = "{$s3BaseUrl}/{$path}";
+
+        try {
+            // Store uploaded photo path to database
+            OrderUpload::create([
+                "order_id" => $orderId,
+                "upload_path" => $path
+            ]);
+        } catch (\Exception $e) {
+            throw $e;
+        }
+
+        return $path;
     }
 
     public function deletePhoto(Request $request, $id)
@@ -255,23 +285,6 @@ class OrderController extends Controller
         return response()->json([
             "message" => "Delete Photo Success"
         ], Response::HTTP_OK);
-    }
-
-    public function storePhoto($photo, $customerId, $orderId)
-    {
-        $directory = "assets/orders/photos/customer_id/{$customerId}/order_id/{$orderId}";
-        $path = $photo->store($directory);
-
-        try {
-            OrderUpload::create([
-                "order_id" => $orderId,
-                "upload_path" => $path
-            ]);
-        } catch (\Exception $e) {
-            return $e;
-        }
-
-        return $path;
     }
 
     public function order(Request $request)
