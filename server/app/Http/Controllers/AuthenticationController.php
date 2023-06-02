@@ -48,7 +48,7 @@ class AuthenticationController extends Controller
         if (!$user || !Hash::check($validated['password'], $user->password)) {
             return response()->json([
                 "message" => "Email atau password salah."
-            ], Response::HTTP_NOT_ACCEPTABLE);
+            ], Response::HTTP_UNAUTHORIZED);
         }
 
         $token = $user->createToken("login token")->plainTextToken;

@@ -80,3 +80,11 @@ body {
 .light-white {
   background-color: #e1ecf9;
 }
+
+.background-grey {
+  background-color: #F7F7F7;
+}
+
+.horizontal-line {
+  border-bottom: 3px solid #d3d3d3;
+}
