@@ -56,7 +56,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Order Photos
     Route::prefix("/orders/photos")->group(function() {
-        Route::get("/{orderId}", [OrderController::class, "getPhoto"]);
+        // Get route is public.
         Route::post("/", [OrderController::class, "uploadPhoto"]);
         Route::delete("/{id}", [OrderController::class, "deletePhoto"]);
     });
@@ -69,6 +69,10 @@ Route::prefix("/auth")->group(function() {
 Route::prefix("/orders")->group(function() {
     Route::get("/", [OrderController::class, "getAllOrders"]);
     Route::get("/{id}", [OrderController::class, "getOrderById"]);
+});
+
+Route::prefix("/orders/photos")->group(function() {
+    Route::get("/{orderId}", [OrderController::class, "getPhoto"]);
 });
 
 Route::prefix("/categories")->group(function() {

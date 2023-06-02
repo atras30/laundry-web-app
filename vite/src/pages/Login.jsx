@@ -13,13 +13,11 @@ export default function Login() {
   const password = useRef(null);
   const navigate = useNavigate();
   const google = window.google;
-
+  
   useEffect(() => {
-    console.log(import.meta.env.VITE_GOOGLE_CLIENT_ID);
-
     // Login by Google init
     google?.accounts?.id?.initialize({
-      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID ?? "",
       callback: handleCredentialResponse,
     });
 

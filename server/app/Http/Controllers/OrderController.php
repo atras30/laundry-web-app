@@ -180,16 +180,16 @@ class OrderController extends Controller
         ]);
 
         $s3BaseUrl = env("S3_ENDPOINT");
-        if($s3BaseUrl == null) return response()->json([
+        if ($s3BaseUrl == null) return response()->json([
             "message" => "S3_ENDPOINT is not set yet"
         ], Response::HTTP_INTERNAL_SERVER_ERROR);
 
         $photo_path = OrderUpload::where("order_id", $orderId)
             ->select('upload_path', "id")
             ->get()
-            ->map(function ($record) use($s3BaseUrl) {
+            ->map(function ($record) use ($s3BaseUrl) {
                 return [
-                    "upload_path" => $s3BaseUrl.$record->upload_path,
+                    "upload_path" => $s3BaseUrl . $record->upload_path,
                     "id" => $record->id
                 ];
             });
@@ -229,13 +229,16 @@ class OrderController extends Controller
 
     public function storePhoto($photo, $customerId, $orderId)
     {
+
         // Validation
         $s3bucket = env("S3_BUCKET");
-        if($s3bucket == null) throw new \Exception("S3_BUCKET configuration is not set yet.");
+        $currentEnvirontment = env("APP_ENV");
+        if ($s3bucket == null) throw new \Exception("S3_BUCKET is not configured.");
+        if ($currentEnvirontment == null) throw new \Exception("APP_ENV is not configured.");
 
         // Store Photo to s3
         $uuid = Uuid::uuid4()->toString();
-        $path = Storage::disk("s3")->putFileAs("order_uploads/photos", $photo, "customer_id_{$customerId}_order_id_{$orderId}_UUID_{$uuid}.jpg");
+        $path = Storage::disk("s3")->putFileAs("{$currentEnvirontment}/order_uploads/photos", $photo, "customer_id_{$customerId}_order_id_{$orderId}_UUID_{$uuid}.jpg");
         $path = "{$s3bucket}/{$path}";
 
         try {
@@ -275,11 +278,11 @@ class OrderController extends Controller
 
         try {
             $s3bucket = env("S3_BUCKET");
-            if($s3bucket == null) return response()->json([
+            if ($s3bucket == null) return response()->json([
                 "message" => "S3_BUCKET is not configured yet."
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
 
-            $storagePath = str_replace($s3bucket, "",$orderUpload->upload_path);
+            $storagePath = str_replace($s3bucket, "", $orderUpload->upload_path);
             Storage::disk("s3")->delete($storagePath);
 
             $orderUpload->delete();
