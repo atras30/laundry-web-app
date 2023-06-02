@@ -256,43 +256,46 @@ export default function DetailOrder() {
   }
 
   function _renderOrderPhotos() {
-    console.log(photos);
+    if (photos?.length === 0)
+      return (
+        <div>
+          <div>
+            <small className="text-center d-block text-muted text-small">Belum ada Foto</small>
+          </div>
+        </div>
+      );
 
     return (
       <div>
-        {photos.length === 0 ? (
-          <div>
-            <div>
-              <small className="text-center d-block text-muted text-small">Belum ada Foto</small>
-            </div>
-          </div>
-        ) : (
-          photos.map((photo) => {
-            return (
-              <div className="w-100 position-relative mb-3" key={crypto.randomUUID()}>
-                <img
-                  style={{ objectFit: "contain", objectPosition: "center" }}
-                  height={300}
-                  className="w-100 img-thumbnail shadow-sm"
-                  src={photo.upload_path}
-                  alt="Error"
-                />
+        {photos?.map((photo, index) => {
+          return (
+            <div className="w-100 position-relative mb-3" key={index}>
+              <img
+                style={{ objectFit: "contain", objectPosition: "center" }}
+                height={300}
+                className="w-100 img-thumbnail shadow-sm"
+                src={photo?.upload_path ?? ""}
+                alt="Error"
+              />
+
+              {new Cookies().get("token") && (
                 <button
-                  onClick={() => setPhotoIdToBeDeleted(photo.id)}
+                  onClick={() => setPhotoIdToBeDeleted(photo?.id)}
                   data-bs-toggle="modal"
                   data-bs-target="#delete-photo-modal"
                   className="btn btn-danger rounded-0 position-absolute top-0 end-0 text-white text-center rounded-bottom p-2">
                   <small className="fw-bold">Hapus Foto</small>
                 </button>
-                <div
-                  className="position-absolute bottom-0 start-0 end-0 text-white text-center rounded-bottom p-2"
-                  style={{ background: "rgba(0,0,0,.6)" }}>
-                  Sudah diantar - {format(new Date(), "dd MMM yyyy HH:mm:ss")}
-                </div>
+              )}
+
+              <div
+                className="position-absolute bottom-0 start-0 end-0 text-white text-center rounded-bottom p-2"
+                style={{ background: "rgba(0,0,0,.6)" }}>
+                Sudah diantar - {format(new Date(), "dd MMM yyyy HH:mm:ss")}
               </div>
-            );
-          })
-        )}
+            </div>
+          );
+        })}
       </div>
     );
   }
@@ -318,7 +321,7 @@ export default function DetailOrder() {
 
   function handleAddPhoto() {
     new Compressor(inputPhoto.current.files[0], {
-      quality: 0.1,
+      quality: 0.3,
       success(result) {
         axios
           .post(
@@ -347,8 +350,8 @@ export default function DetailOrder() {
           });
       },
       error(err) {
-        toast.error(err.message || "Image compressing failed.")
-      }
+        toast.error(err.message || "Image compressing failed.");
+      },
     });
   }
 
@@ -456,13 +459,16 @@ export default function DetailOrder() {
                 <div
                   className="position-relative text-center fs-5 fw-bold purple-200 text-white"
                   style={{ height: "2.5rem" }}>
-                  <button
-                    className="btn text-white fw-bold shadow-none border-0 position-absolute end-0 h-100 bg-primary d-flex justify-content-center align-items-center px-3"
-                    style={{ fontSize: ".8rem", cursor: "pointer" }}
-                    data-bs-toggle="modal"
-                    data-bs-target="#add-photo-modal">
-                    <i className="bi bi-cloud-plus me-2 fs-5"></i>Tambah
-                  </button>
+                  {new Cookies().get("token") && (
+                    <button
+                      className="btn text-white fw-bold shadow-none border-0 position-absolute end-0 h-100 bg-primary d-flex justify-content-center align-items-center px-3"
+                      style={{ fontSize: ".8rem", cursor: "pointer" }}
+                      data-bs-toggle="modal"
+                      data-bs-target="#add-photo-modal">
+                      <i className="bi bi-cloud-plus me-2 fs-5"></i>Tambah
+                    </button>
+                  )}
+
                   <div className="h-100 d-flex justify-content-center align-items-center">Foto</div>
                 </div>
                 <div className="p-2 px-3" style={{ background: "#F7F7F7" }}>
