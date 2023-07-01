@@ -1,26 +1,46 @@
-import React from "react";
+import React, { useState } from "react";
 import { format, formatRelative } from "date-fns";
 import { id } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
 import Cookies from "universal-cookie";
 import DetailSubOrder from "./DetailSubOrder";
 import { formatRupiah } from "../helper/helper";
+import "../styles/order.css"
 
 export default function Order({ order, index }) {
-  const navigate = useNavigate();
+  //Main State
+  const [expand, setExpand] = useState(false);
 
+  // Misc
+  const navigate = useNavigate();
+  
   function handleRedirect() {
     if (!new Cookies().get("token")) return;
 
     navigate(`/orders?id=${order.id}`);
   }
 
+  function expandDetailOrder(event) {
+    event.stopPropagation();
+    setExpand(prev => !prev)
+  }
+  
+  //CSS Stylesheet objects
+  const masterStyle = {
+    showDetailOrder: { borderRadius: "0", borderTopRightRadius: ".4rem", minWidth: "3rem", fontSize: ".8rem" }
+  };
+  
   return (
-    <div id={`order-${order.id}`} data-aos={index % 2 === 0 ? "flip-left" : "flip-right"} data-aos-duration="400" className="card text-center mb-3" style={{ cursor: "pointer" }} onClick={handleRedirect}>
+    <div id={`order-${order.id}`} className="card text-center mb-3" style={{ cursor: "pointer" }} onClick={handleRedirect}>
       <div className="card-body text-start m-0 p-0">
-        <h5 className="card-header fw-bold text-center rounded-top p-2 border-2 border-black border-bottom">{order?.customer.name}</h5>
+        <h5 className="card-header fw-bold text-center rounded-top p-2 border-2 border-black border-bottom position-relative">
+          <span>{order?.customer.name}</span>
+          <div className="button-accent-purple position-absolute end-0 top-50 translate-middle-y px-3 h-100 d-flex justify-content-center align-items-center" style={masterStyle.showDetailOrder} onClick={expandDetailOrder}>
+            v
+          </div>
+        </h5>
 
-        <div className="p-3">
+        <div className={`overflow-hidden ${expand === true && 'p-3'}`} style={{height: expand === true ? "auto" : "0"}}>
           <table style={{ width: "100%" }}>
             <tbody>
               <tr>
@@ -64,7 +84,12 @@ export default function Order({ order, index }) {
                 <td className="fw-bold">Status Bayar</td>
                 <td className="px-2">:</td>
                 <td>
-                  <span className={`${order?.payment_status === "Belum bayar" ? "bg-danger" : order?.payment_status === "Lunas" ? "bg-success" : order?.payment_status === "Sudah bayar" ? "bg-warning" : "Unknown"} p-3 rounded py-0 text-white fw-bold d-flex justify-content-center align-items-center`}>{order?.payment_status}</span>
+                  <span
+                    className={`${
+                      order?.payment_status === "Belum bayar" ? "bg-danger" : order?.payment_status === "Lunas" ? "bg-success" : order?.payment_status === "Sudah bayar" ? "bg-warning" : "Unknown"
+                    } p-3 rounded py-0 text-white fw-bold d-flex justify-content-center align-items-center`}>
+                    {order?.payment_status}
+                  </span>
                 </td>
               </tr>
             </tbody>
