@@ -19,7 +19,7 @@ class OrderController extends Controller
 {
     public function getAllOrders()
     {
-        $orders = Order::with("customer")->with("sub_orders")->get()->sortByDesc("created_at")->take(50)->values();
+        $orders = Order::with("customer")->with("sub_orders")->take(50)->orderBy("created_at", "DESC")->get()->values();
 
         foreach ($orders as $order) {
             foreach ($order->sub_orders as $sub_order) {
@@ -185,12 +185,21 @@ class OrderController extends Controller
         ], Response::HTTP_INTERNAL_SERVER_ERROR);
 
         $photo_path = OrderUpload::where("order_id", $orderId)
-            ->select('upload_path', "id")
             ->get()
             ->map(function ($record) use ($s3BaseUrl) {
                 return [
                     "upload_path" => $s3BaseUrl . $record->upload_path,
-                    "id" => $record->id
+                    "id" => $record->id,
+                    "description" => $record->description,
+                    "created_at" =>
+                        //Hari, tanggal bulan tahun jam:menit:detik
+                    $record->created_at->locale('id')->dayName . ", " .
+                    $record->created_at->day . " " .
+                    $record->created_at->monthName . " " .
+                    $record->created_at->year . " " .
+                    sprintf('%02d',$record->created_at->hour) . ":" .
+                    sprintf('%02d',$record->created_at->minute) . ":" .
+                    sprintf('%02d',$record->created_at->second)
                 ];
             });
 
@@ -208,14 +217,14 @@ class OrderController extends Controller
             "orderId" => [
                 "required",
                 Rule::exists("orders", "id")
-            ],
+            ]
         ], [
             "customerId.exists" => "Customer is not exists",
             "orderId.exists" => "Order is not exists",
         ]);
 
         try {
-            $this->storePhoto($request->file('photo'), $request->customerId, $request->orderId);
+            $this->storePhoto($request->file('photo'), $request->customerId, $request->orderId, $request->description);
         } catch (\Exception $e) {
             return response()->json([
                 "message" => $e->getMessage()
@@ -227,9 +236,8 @@ class OrderController extends Controller
         ], Response::HTTP_OK);
     }
 
-    public function storePhoto($photo, $customerId, $orderId)
+    public function storePhoto($photo, $customerId, $orderId, $description)
     {
-
         // Validation
         $s3bucket = env("S3_BUCKET");
         $currentEnvirontment = env("APP_ENV");
@@ -245,7 +253,8 @@ class OrderController extends Controller
             // Store uploaded photo path to database
             OrderUpload::create([
                 "order_id" => $orderId,
-                "upload_path" => $path
+                "upload_path" => $path,
+                "description" => $description ?? ""
             ]);
         } catch (\Exception $e) {
             throw $e;
@@ -305,7 +314,6 @@ class OrderController extends Controller
             "notes" => "present",
             "payment_status" => "required|string",
             "price" => "required|numeric",
-            "photo" => 'mimes:png,jpg,jpeg|max:4096'
         ], [
             'customer_id.required' => 'Anda belum memilih Customer!',
         ]);
@@ -320,10 +328,6 @@ class OrderController extends Controller
         if (!$validated['notes']) $validated['notes'] = "";
 
         $order = Order::create($validated);
-
-        if (isset($validated['photo'])) {
-            $path = $this->storePhoto($request->file('photo'), $validated['customer_id'], $order->id);
-        }
 
         foreach ($subOrders as $subOrder) {
             $validator = Validator::make(collect($subOrder)->toArray(), [
