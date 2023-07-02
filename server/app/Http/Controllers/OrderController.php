@@ -56,6 +56,10 @@ class OrderController extends Controller
     {
         $order = Order::with("customer", "sub_orders")->where("id", $id)->get()->first();
 
+        if ($order === null) return Response()->json([
+            "message" => "Order not found"
+        ], Response::HTTP_NOT_FOUND);
+
         foreach ($order->sub_orders as $sub_order) {
             $priceText = "";
             $category = Category::firstWhere("title", $sub_order->type);
@@ -192,14 +196,14 @@ class OrderController extends Controller
                     "id" => $record->id,
                     "description" => $record->description,
                     "created_at" =>
-                        //Hari, tanggal bulan tahun jam:menit:detik
+                    //Hari, tanggal bulan tahun jam:menit:detik
                     $record->created_at->locale('id')->dayName . ", " .
-                    $record->created_at->day . " " .
-                    $record->created_at->monthName . " " .
-                    $record->created_at->year . " " .
-                    sprintf('%02d',$record->created_at->hour) . ":" .
-                    sprintf('%02d',$record->created_at->minute) . ":" .
-                    sprintf('%02d',$record->created_at->second)
+                        $record->created_at->day . " " .
+                        $record->created_at->monthName . " " .
+                        $record->created_at->year . " " .
+                        sprintf('%02d', $record->created_at->hour) . ":" .
+                        sprintf('%02d', $record->created_at->minute) . ":" .
+                        sprintf('%02d', $record->created_at->second)
                 ];
             });
 

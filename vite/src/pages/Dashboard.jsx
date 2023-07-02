@@ -1,5 +1,4 @@
-import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import MasterLayout from "../layouts/MasterLayout";
 import { apiBaseUrl } from "../provider/ApiService";
 import { useSearchParams } from "react-router-dom";
@@ -14,6 +13,7 @@ import "../styles/dashboard.css";
 import TypeIt from "typeit";
 import CategorySkeleton from "../components/skeleton/CategorySkeleton";
 import { Autoplay, EffectCube, Navigation, Pagination } from "swiper";
+import { AxiosContext } from "../service/axios/AxiosProvider";
 
 export default function Dashboard() {
   const [priceList, setPriceList] = useState([]);
@@ -21,11 +21,13 @@ export default function Dashboard() {
   const [instantPriceList, setInstantPriceList] = useState([]);
   const [searchParams] = useSearchParams();
 
+  //Context
+  const axiosInstance = useContext(AxiosContext);
+
   useEffect(() => {
     fetchCategories();
     checkRedirectToken();
     initTaglineTypeIt();
-    checkToken();
   }, []);
 
   function initTaglineTypeIt() {
@@ -34,36 +36,18 @@ export default function Dashboard() {
     }).go();
   }
 
-  function checkToken() {
-    if (!new Cookies().get("token")) return;
-
-    // If the user have token in their cookies, check if the token is still valid in database.
-    axios
-      .get(apiBaseUrl("/auth/users"), {
-        headers: {
-          Authorization: new Cookies().get("token"),
-        },
-      })
-      .catch((error) => {
-        // if token is not valid, then delete its token and redirect back and refresh the page.
-        if (error.response.request.status === 401) {
-          new Cookies().remove("token");
-          window.location.href = "";
-        }
-      });
-  }
-
   // Check if the user is logged in using login by google ?
   const checkRedirectToken = () => {
     const token = searchParams.get("token");
     if (!token) return;
+
     new Cookies().set("token", `Bearer ${token}`, {
       expires: new Date(Date.now() + 3600 * 24 * 365 * 1000),
     });
   };
 
   const fetchCategories = () => {
-    axios
+    axiosInstance
       .get(apiBaseUrl("/categories"))
       .then((response) => {
         const categories = response.data.categories;
@@ -75,9 +59,6 @@ export default function Dashboard() {
         setPriceList(normalPriceList);
         setExpressPriceList(expressPriceList);
         setInstantPriceList(instantPriceList);
-      })
-      .catch((error) => {
-        console.log(error.response.data);
       });
   };
 
@@ -157,7 +138,7 @@ export default function Dashboard() {
           pagination={true}
           modules={[EffectCube, Pagination, Navigation, Autoplay]}
           className="mySwiper"
-          style={{overflow: "visible"}}>
+          style={{ overflow: "visible" }}>
           {[...new Array(3)].map((each, index) => {
             return (
               <SwiperSlide key={index}>

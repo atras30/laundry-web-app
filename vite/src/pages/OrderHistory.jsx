@@ -1,16 +1,17 @@
 import axios from "axios";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import MasterLayout from "../layouts/MasterLayout";
 import { apiBaseUrl } from "../provider/ApiService";
 import Order from "../components/Order";
 import { useNavigate } from "react-router-dom";
-import Cookies from "universal-cookie";
 import OrderSkeleton from "../components/skeleton/OrderSkeleton";
-import Skeleton from "react-loading-skeleton";
+import { AxiosContext } from "../service/axios/AxiosProvider";
+import AuthenticatedLayout from "../layouts/AuthenticatedLayout";
 
 export default function OrderHistory() {
   // Misc
   const navigate = useNavigate();
+  const axiosInstance = useContext(AxiosContext);
 
   // Main State
   const [orders, setOrders] = useState([]);
@@ -26,24 +27,8 @@ export default function OrderHistory() {
   const filterStatusPayment = useRef(null);
 
   useEffect(() => {
-    checkMiddleware();
     fetchOrders();
   }, []);
-
-  function checkMiddleware() {
-    axios
-      .get(apiBaseUrl("/auth/users"), {
-        headers: {
-          Authorization: new Cookies().get("token"),
-        },
-      })
-      .catch((error) => {
-        if (error?.response?.data?.message === "Unauthenticated.") {
-          new Cookies().remove("token");
-          navigate("/");
-        }
-      });
-  }
 
   useEffect(() => {
     const lastCard = document.getElementById(`order-${localStorage.getItem("lastOrderDetailId")}`);
@@ -54,7 +39,7 @@ export default function OrderHistory() {
   }, [orders]);
 
   async function fetchOrders() {
-    const response = await axios.get(apiBaseUrl(`/orders`));
+    const response = await axiosInstance.get(apiBaseUrl(`/orders`));
     setInitOrders(response.data.orders);
     setOrders(response.data.orders);
     setOrderCount(response.data.total);
@@ -86,48 +71,50 @@ export default function OrderHistory() {
   }
 
   return (
-    <MasterLayout>
-      <div data-aos="fade-down" className="container orders pb-2">
-        {/* Page's main title */}
-        <div className="title fw-bold fs-4 text-center mb-2">Daftar Order</div>
-        <div className="d-flex justify-content-center">
-          <small className="fw-semibold text-secondary mb-3">Total Order : {orderCount}</small>
+    <AuthenticatedLayout>
+      <MasterLayout>
+        <div data-aos="fade-down" className="container orders pb-2">
+          {/* Page's main title */}
+          <div className="title fw-bold fs-4 text-center mb-2">Daftar Order</div>
+          <div className="d-flex justify-content-center">
+            <small className="fw-semibold text-secondary mb-3">Total Order : {orderCount}</small>
+          </div>
+
+          {/* Input customer name filter */}
+          <div className="mb-3">
+            <input onChange={handleInputCustomerChange} type="text" ref={inputCustomerName} className="form-control bg-light rounded-pill" placeholder="Masukkan nama customer..." />
+          </div>
+
+          {/* Filter buttons */}
+          <div className="d-flex gap-2 mb-3 fw-bold">
+            <select ref={filterOrderStatus} onChange={handleFilterChange} className="form-select btn btn-secondary rounded-pill" aria-label="Default select example">
+              <option value="">Filter Status</option>
+              <option value="Sedang dikerjakan">Sedang dikerjakan</option>
+              <option value="Menunggu diambil">Menunggu diambil</option>
+              <option value="Sudah diantar">Sudah diantar</option>
+              <option value="Selesai">Selesai</option>
+            </select>
+            <select ref={filterStatusPayment} onChange={handleFilterChange} className="form-select btn btn-secondary rounded-pill" aria-label="Default select example">
+              <option value="">Filter Status Bayar</option>
+              <option value="Lunas">Lunas</option>
+              <option value="Belum bayar">Belum bayar</option>
+            </select>
+          </div>
+
+          {/* Add order button */}
+          <button className="btn button-accent-purple rounded-pill w-100 mb-3 fw-bold" style={{ background: "#287eff" }} onClick={handleAddOrder}>
+            Tambah Order
+          </button>
+
+          {/* If the order is still fetching, display the loading skeleton */}
+          {isFetchingOrders ? <OrderSkeleton /> : null}
+
+          {/* Otherwise, show orders */}
+          {orders?.map((order, index) => (
+            <Order key={order.id} index={index} order={order} />
+          ))}
         </div>
-
-        {/* Input customer name filter */}
-        <div className="mb-3">
-          <input onChange={handleInputCustomerChange} type="text" ref={inputCustomerName} className="form-control bg-light rounded-pill" placeholder="Masukkan nama customer..." />
-        </div>
-
-        {/* Filter buttons */}
-        <div className="d-flex gap-2 mb-3 fw-bold">
-          <select ref={filterOrderStatus} onChange={handleFilterChange} className="form-select btn btn-secondary rounded-pill" aria-label="Default select example">
-            <option value="">Filter Status</option>
-            <option value="Sedang dikerjakan">Sedang dikerjakan</option>
-            <option value="Menunggu diambil">Menunggu diambil</option>
-            <option value="Sudah diantar">Sudah diantar</option>
-            <option value="Selesai">Selesai</option>
-          </select>
-          <select ref={filterStatusPayment} onChange={handleFilterChange} className="form-select btn btn-secondary rounded-pill" aria-label="Default select example">
-            <option value="">Filter Status Bayar</option>
-            <option value="Lunas">Lunas</option>
-            <option value="Belum bayar">Belum bayar</option>
-          </select>
-        </div>
-
-        {/* Add order button */}
-        <button className="btn button-accent-purple rounded-pill w-100 mb-3 fw-bold" style={{ background: "#287eff" }} onClick={handleAddOrder}>
-          Tambah Order
-        </button>
-
-        {/* If the order is still fetching, display the loading skeleton */}
-        {isFetchingOrders ? <OrderSkeleton /> : null}
-
-        {/* Otherwise, show orders */}
-        {orders?.map((order, index) => (
-          <Order key={order.id} index={index} order={order} />
-        ))}
-      </div>
-    </MasterLayout>
+      </MasterLayout>
+    </AuthenticatedLayout>
   );
 }
