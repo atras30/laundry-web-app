@@ -34,10 +34,9 @@ export default function Login() {
           expires: new Date(Date.now() + 3600 * 24 * 365 * 1000),
         });
         navigate("/");
+      }).catch(() => {
+        toast.dismiss(loginToast);
       })
-      .catch((error) => {
-        toast.update(loginToast, { render: error.response.data.message, type: "error", isLoading: false, autoClose: 3000, draggable: true, closeOnClick: true });
-      });
   };
 
   const handleLoginWithGoogleRedirect = () => {

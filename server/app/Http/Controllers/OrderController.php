@@ -17,9 +17,21 @@ use Ramsey\Uuid\Uuid;
 
 class OrderController extends Controller
 {
-    public function getAllOrders()
+    public function getAllOrders(Request $request)
     {
-        $orders = Order::with("customer")->with("sub_orders")->take(50)->orderBy("created_at", "DESC")->get()->values();
+        // Init query
+        $orders = Order::with("customer:id,name,address")->with("sub_orders")->select("id", "customer_id", "price", "notes");
+
+        // Check for search query
+        if (!empty($request->search)) $orders->whereHas("customer", function ($query) use ($request) {
+            $query->where("name", "like", "%{$request->search}%");
+        });
+
+        // Pagination
+        $recordCount = $orders->count();
+        $orders = $orders->take(50)->orderBy("created_at", "DESC")->get();
+
+        return $orders;
 
         foreach ($orders as $order) {
             foreach ($order->sub_orders as $sub_order) {
@@ -48,6 +60,7 @@ class OrderController extends Controller
         return Response()->json([
             "message" => "Successfully fetched orders.",
             "total" => Order::count(),
+            "count" => $recordCount,
             "orders" => $orders
         ], Response::HTTP_OK);
     }

@@ -1,19 +1,16 @@
-import React, { useState } from "react";
-import { format, formatRelative } from "date-fns";
+import React from "react";
+import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
 import Cookies from "universal-cookie";
 import DetailSubOrder from "./DetailSubOrder";
 import { formatRupiah } from "../helper/helper";
-import "../styles/order.css"
+import "../styles/order.css";
 
-export default function Order({ order, index }) {
-  //Main State
-  const [expand, setExpand] = useState(false);
-
+export default function Order({ order, orders, setOrders }) {
   // Misc
   const navigate = useNavigate();
-  
+
   function handleRedirect() {
     if (!new Cookies().get("token")) return;
 
@@ -22,25 +19,40 @@ export default function Order({ order, index }) {
 
   function expandDetailOrder(event) {
     event.stopPropagation();
-    setExpand(prev => !prev)
+
+    const newOrders = orders?.map((record) => {
+      if (record.id == order.id) return { ...record, expand: !order?.expand };
+
+      return record;
+    });
+
+    setOrders(newOrders);
   }
-  
+
+  function _renderExpandIcon() {
+    return (
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+        <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd"></path>
+      </svg>
+    );
+  }
+
   //CSS Stylesheet objects
   const masterStyle = {
-    showDetailOrder: { borderRadius: "0", borderTopRightRadius: ".4rem", minWidth: "3rem", fontSize: ".8rem" }
+    showDetailOrder: { borderRadius: "0", borderTopRightRadius: ".4rem", minWidth: "3rem", fontSize: ".8rem" },
   };
-  
+
   return (
-    <div id={`order-${order.id}`} className="card text-center mb-3" style={{ cursor: "pointer" }} onClick={handleRedirect}>
+    <div id={`order-${order.id}`} className="shadow-md card text-center mb-2" style={{ cursor: "pointer" }} onClick={handleRedirect}>
       <div className="card-body text-start m-0 p-0">
         <h5 className="card-header fw-bold text-center rounded-top p-2 border-2 border-black border-bottom position-relative">
           <span>{order?.customer.name}</span>
           <div className="button-accent-purple position-absolute end-0 top-50 translate-middle-y px-3 h-100 d-flex justify-content-center align-items-center" style={masterStyle.showDetailOrder} onClick={expandDetailOrder}>
-            v
+            {_renderExpandIcon()}
           </div>
         </h5>
 
-        <div className={`overflow-hidden ${expand === true && 'p-3'}`} style={{height: expand === true ? "auto" : "0"}}>
+        <div className={`overflow-hidden ${order?.expand && "p-3"}`} style={{ height: order?.expand ? "auto" : "0" }}>
           <table style={{ width: "100%" }}>
             <tbody>
               <tr>
