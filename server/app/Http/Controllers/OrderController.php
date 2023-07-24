@@ -14,24 +14,36 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 
 class OrderController extends Controller
 {
     public function getAllOrders(Request $request)
     {
-        // Init query
-        $orders = Order::with("customer:id,name,address")->with("sub_orders")->select("id", "customer_id", "price", "notes");
+        if ($request->currentPage == "" || $request->currentPage == null) throw new \InvalidArgumentException("Current page cannot be empty.");
 
-        // Check for search query
+        $paginationLimit = 50;
+
+        // Init query
+        $orders = Order::with("customer:id,name,address")->with("sub_orders")->select("id", "customer_id", "price", "notes", "status", "payment_status", "created_at", "done_at");
+
+        // Search Query
         if (!empty($request->search)) $orders->whereHas("customer", function ($query) use ($request) {
             $query->where("name", "like", "%{$request->search}%");
         });
 
-        // Pagination
-        $recordCount = $orders->count();
-        $orders = $orders->take(50)->orderBy("created_at", "DESC")->get();
+        // Status Query
+        if (!empty($request->status)) $orders->where("status", $request->status);
 
-        return $orders;
+        // Status Payment Query
+        if (!empty($request->statusPayment)) $orders->where("payment_status", $request->statusPayment);
+
+        // Pagination
+        $totalData = $orders->count();
+        $orders = $orders->offset($paginationLimit * ($request->currentPage - 1))->limit($paginationLimit)->orderBy("created_at", "DESC")->get();
+        $recordCount = $orders->count();
+        $hasNextPage = $request->currentPage * $paginationLimit < $totalData;
+        $currentTotalData = $request->currentPage * $paginationLimit < $totalData ? $request->currentPage * $paginationLimit : ($request->currentPage - 1) * $paginationLimit + $recordCount;
 
         foreach ($orders as $order) {
             foreach ($order->sub_orders as $sub_order) {
@@ -53,15 +65,15 @@ class OrderController extends Controller
                 $sub_order->price_text = $priceText;
                 $sub_order->total_text = "Rp " . number_format($sub_order->total, 0, ',', '.');
             }
-
-            // dd($order);
         }
 
         return Response()->json([
             "message" => "Successfully fetched orders.",
-            "total" => Order::count(),
+            "total" => $totalData,
             "count" => $recordCount,
-            "orders" => $orders
+            "hasNextPage" => $hasNextPage,
+            "currentTotalData" => $currentTotalData,
+            "orders" => $orders,
         ], Response::HTTP_OK);
     }
 
