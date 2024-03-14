@@ -5,6 +5,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -67,6 +68,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get("/", [ExpenseController::class, "index"]);
         Route::post("/", [ExpenseController::class, "store"]);
         Route::delete("/{id}", [ExpenseController::class, "destroy"]);
+    });
+
+    // Report
+    Route::prefix("/report")->group(function () {
+        Route::get("/expense", [ReportController::class, "getExpenseReport"]);
     });
 });
 

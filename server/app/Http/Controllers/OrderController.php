@@ -87,7 +87,9 @@ class OrderController extends Controller
 
         foreach ($order->sub_orders as $sub_order) {
             $priceText = "";
-            $category = Category::firstWhere("title", $sub_order->type);
+            $category = Category::firstWhere("id", $sub_order->category_id);
+            if($category == null) $category = Category::firstWhere("title", $sub_order->type);
+
             $priceText = "Rp " . number_format($category->price, 0, ',', '.');
 
             if ($category->price_per_multiplied_kg) {
@@ -364,6 +366,7 @@ class OrderController extends Controller
                 "jumlah" => "required",
                 "hargaPerKilo" => "present",
                 "subTotal" => "present",
+                "idCategory" => "present",
             ], [
                 "jenisLaundry.required" => "Jenis Layanan dan Berat harus diisi",
                 "jumlah.required" => "Jumlah harus diisi",
@@ -376,13 +379,14 @@ class OrderController extends Controller
             }
 
             $validated = $validator->validated();
-
-            SubOrder::create([
+            $category = Category::firstWhere("id", $validated['idCategory']);
+            $createdSubOrder = SubOrder::create([
                 "order_id" => $order->id,
+                "category_id" => $validated["idCategory"],
                 "type" => $validated['jenisLaundry'],
                 "price_per_kg" => $validated['hargaPerKilo'],
-                "is_price_per_unit" => Category::firstWhere("title", $validated['jenisLaundry'])->is_price_per_unit,
-                "price_per_multiplied_kg" => Category::firstWhere("title", $validated['jenisLaundry'])->price_per_multiplied_kg,
+                "is_price_per_unit" => $category->is_price_per_unit,
+                "price_per_multiplied_kg" => $category->price_per_multiplied_kg,
                 "amount" => $validated['jumlah'],
                 "total" => $validated['subTotal'],
             ]);
