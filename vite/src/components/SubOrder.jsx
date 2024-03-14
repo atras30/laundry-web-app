@@ -3,6 +3,7 @@ import InputBerat from "../components/InputBerat";
 import InputUnit from "../components/InputUnit";
 import { formatRupiah } from "../helper/helper";
 import InputSet from "./InputSet";
+import LoadingLayout from "../layouts/LoadingLayout";
 
 export default function SubOrder({ calculateTotalPrice, subOrders, index, categories }) {
   const [chosenCategory, setChosenCategory] = useState([]);
@@ -23,10 +24,11 @@ export default function SubOrder({ calculateTotalPrice, subOrders, index, catego
 
     let subOrder = subOrders.find((eachOrder) => eachOrder.id === index);
     subOrder.jenisLaundry = chosenCategory.title;
-    console.log(chosenCategory);
+    subOrder.idCategory = chosenCategory.id;
     subOrder.jumlah = `${weightInKg.current.value} ${parseInt(chosenCategory?.is_price_per_unit) === parseInt(1) ? "Unit" : parseInt(chosenCategory?.is_price_per_set) === parseInt(1) ? "Set" : "KG"}`;
     subOrder.hargaPerKilo = chosenCategory?.price;
-
+    // console.log(subOrder);
+    
     let subTotal = 0;
     if (chosenCategory.price_per_multiplied_kg != null) {
       subTotal = chosenCategory.price * Math.ceil(weightInKg.current.value / chosenCategory.price_per_multiplied_kg);
@@ -51,14 +53,16 @@ export default function SubOrder({ calculateTotalPrice, subOrders, index, catego
         </label>
       </div>
 
-      <select ref={category} id="category" className="form-select shadow-sm mb-2" aria-label="Default select example" onChange={handleCategoryChange}>
-        <option>Pilih Jenis Laundry</option>
-        {categories?.map((category) => (
-          <option key={category.id} value={category.id}>
-            {category.title} ... {`${category.price_text}`}
-          </option>
-        ))}
-      </select>
+      <LoadingLayout isLoading={categories.length === 0 ? true : false}>
+        <select ref={category} id="category" className="form-select shadow-sm mb-2" aria-label="Default select example" onChange={handleCategoryChange}>
+          <option>Pilih Jenis Laundry</option>
+          {categories?.map((category) => (
+            <option key={category.id} value={category.id}>
+              {category.title} ... {`${category.price_text}`}
+            </option>
+          ))}
+        </select>
+      </LoadingLayout>
 
       {parseInt(chosenCategory?.is_price_per_unit) !== 1 && parseInt(chosenCategory?.is_price_per_set) !== 1 && <InputBerat weightInKg={weightInKg} handleCategoryChange={handleCategoryChange} />}
       {parseInt(chosenCategory?.is_price_per_unit) === 1 && <InputUnit weightInKg={weightInKg} handleCategoryChange={handleCategoryChange} />}

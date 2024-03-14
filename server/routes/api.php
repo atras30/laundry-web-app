@@ -5,6 +5,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -18,15 +19,16 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+//Authenticated Routes
 Route::middleware('auth:sanctum')->group(function () {
     // Authentications
-    Route::prefix("/auth")->group(function() {
+    Route::prefix("/auth")->group(function () {
         Route::get("/users", [AuthenticationController::class, "getUser"]);
         Route::post("/logout", [AuthenticationController::class, "logout"]);
     });
 
     // Customers
-    Route::prefix("/customers")->group(function() {
+    Route::prefix("/customers")->group(function () {
         Route::get("/", [CustomerController::class, "getAllCustomers"]);
         Route::post("/", [CustomerController::class, "store"]);
 
@@ -35,47 +37,58 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete("/{id}", [CustomerController::class, "deleteCustomerById"]);
     });
 
-
     // Orders
-    Route::prefix("/orders")->group(function() {
+    Route::prefix("/orders")->group(function () {
+        // GET
+        Route::get("/", [OrderController::class, "getAllOrders"]);
+
+        // POST
         Route::post("/", [OrderController::class, "order"]);
+
+        // PUT
         Route::put("/status/{id}", [OrderController::class, "updateStatus"]);
         Route::put("/payment_status/{id}", [OrderController::class, "updatePaymentStatus"]);
         Route::put("/notes/{id}", [OrderController::class, "updateNotes"]);
         Route::put("/created_at/{id}", [OrderController::class, "updateCreatedAt"]);
         Route::put("/done_at/{id}", [OrderController::class, "updateDoneAt"]);
+
+        // DELETE
         Route::delete("/{id}", [OrderController::class, "delete"]);
     });
 
+    // Order Photos
+    Route::prefix("/orders/photos")->group(function () {
+        // Get route is public.
+        Route::post("/", [OrderController::class, "uploadPhoto"]);
+        Route::delete("/{id}", [OrderController::class, "deletePhoto"]);
+    });
+
     // Expenses
-    Route::prefix("/expenses")->group(function() {
+    Route::prefix("/expenses")->group(function () {
         Route::get("/", [ExpenseController::class, "index"]);
         Route::post("/", [ExpenseController::class, "store"]);
         Route::delete("/{id}", [ExpenseController::class, "destroy"]);
     });
 
-    // Order Photos
-    Route::prefix("/orders/photos")->group(function() {
-        // Get route is public.
-        Route::post("/", [OrderController::class, "uploadPhoto"]);
-        Route::delete("/{id}", [OrderController::class, "deletePhoto"]);
+    // Report
+    Route::prefix("/report")->group(function () {
+        Route::get("/expense", [ReportController::class, "getExpenseReport"]);
     });
 });
 
-Route::prefix("/auth")->group(function() {
+//Public Routes
+Route::prefix("/auth")->group(function () {
     Route::post("login", [AuthenticationController::class, "login"]);
 });
 
-Route::prefix("/orders")->group(function() {
-    Route::get("/", [OrderController::class, "getAllOrders"]);
+Route::prefix("/orders")->group(function () {
     Route::get("/{id}", [OrderController::class, "getOrderById"]);
 });
 
-Route::prefix("/orders/photos")->group(function() {
+Route::prefix("/orders/photos")->group(function () {
     Route::get("/{orderId}", [OrderController::class, "getPhoto"]);
 });
 
-Route::prefix("/categories")->group(function() {
+Route::prefix("/categories")->group(function () {
     Route::get("/", [CategoryController::class, "getAllCategory"]);
 });
-

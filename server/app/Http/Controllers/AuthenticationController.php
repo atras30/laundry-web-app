@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -48,7 +49,7 @@ class AuthenticationController extends Controller
         if (!$user || !Hash::check($validated['password'], $user->password)) {
             return response()->json([
                 "message" => "Email atau password salah."
-            ], Response::HTTP_UNAUTHORIZED);
+            ], Response::HTTP_BAD_REQUEST);
         }
 
         $token = $user->createToken("login token")->plainTextToken;

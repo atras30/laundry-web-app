@@ -1,196 +1,74 @@
 import axios from "axios";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import Cookies from "universal-cookie";
-import ExpenseItem from "../components/ExpenseItem";
 import MasterLayout from "../layouts/MasterLayout";
 import { apiBaseUrl } from "../provider/ApiService";
 import { formatRupiah } from "../helper/helper";
-import { format, lastDayOfMonth } from "date-fns";
 import ExpenseSkeleton from "../components/skeleton/ExpenseSkeleton";
 import OrderReport from "../components/OrderReport";
+import { MonthPicker, MonthInput } from "react-lite-month-picker";
 import "../styles/report.css";
+import { AxiosContext } from "../service/axios/AxiosProvider";
 
 export default function Report() {
+  const axiosInstance = useContext(AxiosContext);
   const inputItem = useRef(null);
   const inputQuantity = useRef(null);
   const inputTotal = useRef(null);
   const closeButton = useRef(null);
-  const filterStartYear = useRef(null);
-  const filterStartDate = useRef(null);
+  const [selectedMonthData, setSelectedMonthData] = useState({
+    month: new Date().getMonth(),
+    year: new Date().getFullYear(),
+  });
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
 
-  const [expenses, setExpenses] = useState([]);
-  const [orders, setOrders] = useState([]);
-  const [filteredExpense, setFilteredExpense] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [totalExpense, setTotalExpense] = useState(0);
   const [totalIncome, setTotalIncome] = useState(0);
-  const [isFetchingExpense, setIsFetchingExpense] = useState(true);
-  const [isFetchingOrders, setIsFetchingOrders] = useState(true);
+  const [isFetchingOrders, setIsFetchingOrders] = useState(false);
   const inputTempTotal = useRef(null);
 
-  function clearInputModal() {
-    inputItem.current.value = "";
-    inputQuantity.current.value = "";
-    inputTotal.current.value = "";
-  }
+  useEffect(() => {
+    if (selectedMonthData) fetchIncome();
+  }, [selectedMonthData]);
 
-  function handleAddItem() {
-    const item = inputItem.current.value;
-    const quantity = inputQuantity.current.value;
-    const total = inputTotal.current.value;
+  async function fetchIncome() {
+    setIsFetchingOrders(true);
+    const url = `${apiBaseUrl("/report/expense")}?year=${selectedMonthData.year}&month=${selectedMonthData.month}`;
 
-    axios
-      .post(
-        apiBaseUrl("/expenses"),
-        {
-          item,
-          quantity,
-          total,
-        },
-        {
-          headers: {
-            Authorization: new Cookies().get("token"),
-          },
-        }
-      )
+    axiosInstance
+      .get(url)
       .then((response) => {
-        toast.success(response.data.message);
-        fetchExpenses();
-        closeButton.current.click();
-        clearInputModal();
-      })
-      .catch((error) => console.log(error));
-  }
+        const orders = response.data.data;
+        setFilteredOrders(orders);
 
-  function fetchOrders() {
-    axios
-      .get(apiBaseUrl("/orders"), {
-        headers: {
-          Authorization: new Cookies().get("token"),
-        },
+        const totalIncome = orders.reduce((accumulator, order) => {
+          if (order.payment_status === "Lunas") {
+            return accumulator + parseInt(order.price);
+          }
+
+          return accumulator;
+        }, 0);
+
+        console.log("total income", totalIncome);
+        setTotalIncome(totalIncome);
       })
-      .then((response) => {
-        setOrders(response.data.orders);
-        setFilteredOrders(response.data.orders);
+      .finally((r) => {
         setIsFetchingOrders(false);
-      })
-      .catch((error) => {
-        console.log(error);
       });
   }
-
-  function calculateTotalExpense() {
-    let total = 0;
-    filteredExpense.forEach((expense) => {
-      total += parseInt(expense.total);
-    });
-    setTotalExpense(total);
-  }
-
-  function calculateTotalIncome() {
-    let total = 0;
-    filteredOrders.forEach((order) => {
-      if (order.payment_status === "Lunas") total += parseInt(order.price);
-    });
-    setTotalIncome(total);
-  }
-
-  function fetchExpenses() {
-    axios
-      .get(apiBaseUrl("/expenses"), {
-        headers: {
-          Authorization: new Cookies().get("token"),
-        },
-      })
-      .then((response) => {
-        setExpenses(response.data.expenses);
-        setFilteredExpense(response.data.expenses);
-        setIsFetchingExpense(false);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }
-
-  function filterExpense(startYear, startMonth) {
-    if (startYear === "" || startMonth === "") {
-      setFilteredExpense(expenses);
-      setFilteredOrders(orders);
-      return;
-    }
-
-    let startDate, startDateFilter, endDateFilter;
-
-    if (startMonth === "all") {
-      startDate = new Date(startYear);
-      startDateFilter = format(startDate, "yyyy-MM-dd 00:00:00");
-      endDateFilter = format(lastDayOfMonth(startDate), "yyyy-12-dd 23:59:59");
-    } else {
-      startDate = new Date(startYear, startMonth);
-      startDateFilter = format(startDate, "yyyy-MM-01 00:00:00");
-      endDateFilter = format(lastDayOfMonth(startDate), "yyyy-MM-dd 23:59:59");
-    }
-
-    console.log({ startDateFilter, endDateFilter });
-
-    const filteredExpense = expenses.filter((expense) => {
-      return expense.created_at >= startDateFilter && expense.created_at <= endDateFilter;
-    });
-
-    const filteredOrders = orders.filter((order) => {
-      return order.created_at >= startDateFilter && order.created_at <= endDateFilter;
-    });
-
-    setFilteredExpense(filteredExpense);
-    setFilteredOrders(filteredOrders);
-  }
-
-  useEffect(() => {
-    fetchExpenses();
-    fetchOrders();
-  }, []);
-
-  useEffect(() => {
-    calculateTotalExpense();
-    calculateTotalIncome();
-  }, [filteredExpense, filteredOrders]);
 
   return (
     <MasterLayout>
       <div className="container">
         <div className="title expense text-center fw-bold fs-3 mb-3">Laporan Pengeluaran</div>
 
-        <div className="d-flex mb-3 justify-content-center align-items-center gap-2">
-          <select onChange={() => filterExpense(filterStartYear.current.value, filterStartDate.current.value)} ref={filterStartYear} className="form-select btn btn-secondary text-center rounded-pill" aria-label="Default select example">
-            <option value="">Filter Tahun</option>
-            <option value="2023">2023</option>
-            <option value="2024">2024</option>
-            <option value="2025">2025</option>
-            <option value="2026">2026</option>
-            <option value="2027">2027</option>
-          </select>
-          <select onChange={() => filterExpense(filterStartYear.current.value, filterStartDate.current.value)} ref={filterStartDate} className="form-select btn btn-secondary text-center rounded-pill" aria-label="Default select example">
-            <option value="">Filter Bulan</option>
-            <option value="0">Januari</option>
-            <option value="1">Februari</option>
-            <option value="2">Maret</option>
-            <option value="3">April</option>
-            <option value="4">Mei</option>
-            <option value="5">Juni</option>
-            <option value="6">Juli</option>
-            <option value="7">Agustus</option>
-            <option value="8">September</option>
-            <option value="9">Oktober</option>
-            <option value="10">November</option>
-            <option value="11">Desember</option>
-            <option value="all">Semua Bulan</option>
-          </select>
+        <div>
+          <label className="fw-bold">Pilih bulan</label>
+          <MonthInput size={"small"} selected={selectedMonthData} setShowMonthPicker={setIsPickerOpen} showMonthPicker={isPickerOpen} />
+          {isPickerOpen && <MonthPicker size={"small"} setIsOpen={setIsPickerOpen} selected={selectedMonthData} onChange={setSelectedMonthData} />}
         </div>
-
-        <button className="w-100 rounded-pill align-self-end add-item btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#add-item-modal">
-          Tambah Pengeluaran
-        </button>
 
         <table className="table table-striped table-bordered text-center bg-light rounded overflow-hidden col-12">
           <thead>
@@ -214,31 +92,6 @@ export default function Report() {
         </table>
 
         <div className="report-table" style={{ overflowX: "scroll" }}>
-          <table className="table table-striped table-bordered text-center bg-light rounded overflow-hidden col-12">
-            <thead>
-              <tr className="purple-300 text-white fw-bold rounded">
-                <td colSpan={6}>Tabel Pengeluaran</td>
-              </tr>
-              <tr>
-                <th>#</th>
-                <th>Barang</th>
-                <th>Jumlah</th>
-                <th>Total</th>
-                <th>Tanggal</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {isFetchingExpense && <ExpenseSkeleton />}
-              {filteredExpense?.map((expense, index) => (
-                <ExpenseItem fetchExpenses={fetchExpenses} key={expense.id} expense={expense} index={index + 1}></ExpenseItem>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="report-table" style={{ overflowX: "scroll" }}>
           <table className="table table-striped table-bordered text-center bg-light rounded overflow-hidden text-center">
             <thead>
               <tr className="purple-300 text-white fw-bold rounded">
@@ -256,12 +109,7 @@ export default function Report() {
               </tr>
             </thead>
 
-            <tbody>
-              {isFetchingOrders && <ExpenseSkeleton />}
-              {filteredOrders?.map((order, index) => (
-                <OrderReport key={order.id} order={order} index={index + 1}></OrderReport>
-              ))}
-            </tbody>
+            <tbody>{isFetchingOrders ? <ExpenseSkeleton /> : filteredOrders?.map((order, index) => <OrderReport key={order.id} order={order} index={index + 1} />)}</tbody>
           </table>
         </div>
 
@@ -298,9 +146,6 @@ export default function Report() {
               <div className="modal-footer d-flex justify-content-center align-items-center w-100 flex-nowrap">
                 <button ref={closeButton} type="button" className="btn button-accent-purple w-50" data-bs-dismiss="modal">
                   Batal
-                </button>
-                <button type="button" className="btn button-accent-purple w-50" onClick={handleAddItem}>
-                  Tambah
                 </button>
               </div>
             </div>

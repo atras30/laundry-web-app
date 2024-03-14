@@ -14,12 +14,36 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 
 class OrderController extends Controller
 {
-    public function getAllOrders()
+    public function getAllOrders(Request $request)
     {
-        $orders = Order::with("customer")->with("sub_orders")->get()->sortByDesc("created_at")->take(50)->values();
+        if ($request->currentPage == "" || $request->currentPage == null) throw new \InvalidArgumentException("Current page cannot be empty.");
+
+        $paginationLimit = 50;
+
+        // Init query
+        $orders = Order::with("customer:id,name,address")->with("sub_orders")->select("id", "customer_id", "price", "notes", "status", "payment_status", "created_at", "done_at");
+
+        // Search Query
+        if (!empty($request->search)) $orders->whereHas("customer", function ($query) use ($request) {
+            $query->where("name", "like", "%{$request->search}%");
+        });
+
+        // Status Query
+        if (!empty($request->status)) $orders->where("status", $request->status);
+
+        // Status Payment Query
+        if (!empty($request->statusPayment)) $orders->where("payment_status", $request->statusPayment);
+
+        // Pagination
+        $totalData = $orders->count();
+        $orders = $orders->offset($paginationLimit * ($request->currentPage - 1))->limit($paginationLimit)->orderBy("created_at", "DESC")->get();
+        $recordCount = $orders->count();
+        $hasNextPage = $request->currentPage * $paginationLimit < $totalData;
+        $currentTotalData = $request->currentPage * $paginationLimit < $totalData ? $request->currentPage * $paginationLimit : ($request->currentPage - 1) * $paginationLimit + $recordCount;
 
         foreach ($orders as $order) {
             foreach ($order->sub_orders as $sub_order) {
@@ -41,14 +65,15 @@ class OrderController extends Controller
                 $sub_order->price_text = $priceText;
                 $sub_order->total_text = "Rp " . number_format($sub_order->total, 0, ',', '.');
             }
-
-            // dd($order);
         }
 
         return Response()->json([
             "message" => "Successfully fetched orders.",
-            "total" => Order::count(),
-            "orders" => $orders
+            "total" => $totalData,
+            "count" => $recordCount,
+            "hasNextPage" => $hasNextPage,
+            "currentTotalData" => $currentTotalData,
+            "orders" => $orders,
         ], Response::HTTP_OK);
     }
 
@@ -56,9 +81,15 @@ class OrderController extends Controller
     {
         $order = Order::with("customer", "sub_orders")->where("id", $id)->get()->first();
 
+        if ($order === null) return Response()->json([
+            "message" => "Order not found"
+        ], Response::HTTP_NOT_FOUND);
+
         foreach ($order->sub_orders as $sub_order) {
             $priceText = "";
-            $category = Category::firstWhere("title", $sub_order->type);
+            $category = Category::firstWhere("id", $sub_order->category_id);
+            if($category == null) $category = Category::firstWhere("title", $sub_order->type);
+
             $priceText = "Rp " . number_format($category->price, 0, ',', '.');
 
             if ($category->price_per_multiplied_kg) {
@@ -185,12 +216,21 @@ class OrderController extends Controller
         ], Response::HTTP_INTERNAL_SERVER_ERROR);
 
         $photo_path = OrderUpload::where("order_id", $orderId)
-            ->select('upload_path', "id")
             ->get()
             ->map(function ($record) use ($s3BaseUrl) {
                 return [
                     "upload_path" => $s3BaseUrl . $record->upload_path,
-                    "id" => $record->id
+                    "id" => $record->id,
+                    "description" => $record->description,
+                    "created_at" =>
+                    //Hari, tanggal bulan tahun jam:menit:detik
+                    $record->created_at->locale('id')->dayName . ", " .
+                        $record->created_at->day . " " .
+                        $record->created_at->monthName . " " .
+                        $record->created_at->year . " " .
+                        sprintf('%02d', $record->created_at->hour) . ":" .
+                        sprintf('%02d', $record->created_at->minute) . ":" .
+                        sprintf('%02d', $record->created_at->second)
                 ];
             });
 
@@ -208,14 +248,14 @@ class OrderController extends Controller
             "orderId" => [
                 "required",
                 Rule::exists("orders", "id")
-            ],
+            ]
         ], [
             "customerId.exists" => "Customer is not exists",
             "orderId.exists" => "Order is not exists",
         ]);
 
         try {
-            $this->storePhoto($request->file('photo'), $request->customerId, $request->orderId);
+            $this->storePhoto($request->file('photo'), $request->customerId, $request->orderId, $request->description);
         } catch (\Exception $e) {
             return response()->json([
                 "message" => $e->getMessage()
@@ -227,9 +267,8 @@ class OrderController extends Controller
         ], Response::HTTP_OK);
     }
 
-    public function storePhoto($photo, $customerId, $orderId)
+    public function storePhoto($photo, $customerId, $orderId, $description)
     {
-
         // Validation
         $s3bucket = env("S3_BUCKET");
         $currentEnvirontment = env("APP_ENV");
@@ -245,7 +284,8 @@ class OrderController extends Controller
             // Store uploaded photo path to database
             OrderUpload::create([
                 "order_id" => $orderId,
-                "upload_path" => $path
+                "upload_path" => $path,
+                "description" => $description ?? ""
             ]);
         } catch (\Exception $e) {
             throw $e;
@@ -305,7 +345,6 @@ class OrderController extends Controller
             "notes" => "present",
             "payment_status" => "required|string",
             "price" => "required|numeric",
-            "photo" => 'mimes:png,jpg,jpeg|max:4096'
         ], [
             'customer_id.required' => 'Anda belum memilih Customer!',
         ]);
@@ -321,16 +360,13 @@ class OrderController extends Controller
 
         $order = Order::create($validated);
 
-        if (isset($validated['photo'])) {
-            $path = $this->storePhoto($request->file('photo'), $validated['customer_id'], $order->id);
-        }
-
         foreach ($subOrders as $subOrder) {
             $validator = Validator::make(collect($subOrder)->toArray(), [
                 "jenisLaundry" => "required",
                 "jumlah" => "required",
                 "hargaPerKilo" => "present",
                 "subTotal" => "present",
+                "idCategory" => "present",
             ], [
                 "jenisLaundry.required" => "Jenis Layanan dan Berat harus diisi",
                 "jumlah.required" => "Jumlah harus diisi",
@@ -343,13 +379,14 @@ class OrderController extends Controller
             }
 
             $validated = $validator->validated();
-
-            SubOrder::create([
+            $category = Category::firstWhere("id", $validated['idCategory']);
+            $createdSubOrder = SubOrder::create([
                 "order_id" => $order->id,
+                "category_id" => $validated["idCategory"],
                 "type" => $validated['jenisLaundry'],
                 "price_per_kg" => $validated['hargaPerKilo'],
-                "is_price_per_unit" => Category::firstWhere("title", $validated['jenisLaundry'])->is_price_per_unit,
-                "price_per_multiplied_kg" => Category::firstWhere("title", $validated['jenisLaundry'])->price_per_multiplied_kg,
+                "is_price_per_unit" => $category->is_price_per_unit,
+                "price_per_multiplied_kg" => $category->price_per_multiplied_kg,
                 "amount" => $validated['jumlah'],
                 "total" => $validated['subTotal'],
             ]);

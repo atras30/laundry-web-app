@@ -1,13 +1,13 @@
-import axios from "axios";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { apiBaseUrl } from "../provider/ApiService";
 import Cookies from "universal-cookie";
 import { toast } from "react-toastify";
 import Customer from "../components/Customer";
-import { useNavigate } from "react-router-dom";
 import MasterLayout from "../layouts/MasterLayout";
 import AddCustomerModal from "../components/AddCustomerModal.jsx";
 import CustomerSkeleton from "../components/skeleton/CustomerSkeleton";
+import AuthenticatedLayout from "../layouts/AuthenticatedLayout";
+import { AxiosContext } from "../service/axios/AxiosProvider";
 
 export default function Customers() {
   const inputCustomerName = useRef(null);
@@ -18,53 +18,31 @@ export default function Customers() {
   const [selectedEditCustomerId, setSelectedEditCustomerId] = useState(null);
   const [selectedEditCustomer, setSelectedEditCustomer] = useState(null);
 
-  const navigate = useNavigate();
+  // Context
+  const axiosInstance = useContext(AxiosContext);
 
   useEffect(() => {
-    if (!new Cookies().get("token")) {
-      navigate("/");
-      return;
-    }
-
     fetchCustomers();
   }, []);
 
   useEffect(() => {
     if (!selectedEditCustomerId) return;
-    axios
-      .get(apiBaseUrl(`/customers/${selectedEditCustomerId}`), {
-        headers: {
-          Authorization: new Cookies().get("token"),
-        },
-      })
-      .then((response) => {
-        const customer = response.data.customer;
-        setSelectedEditCustomer(customer);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    const customerUrl = apiBaseUrl(`/customers/${selectedEditCustomerId}`);
+
+    axiosInstance.get(customerUrl).then((response) => {
+      const customer = response.data.customer;
+      setSelectedEditCustomer(customer);
+    });
   }, [selectedEditCustomerId]);
 
   async function fetchCustomers() {
-    const response = await axios
-      .get(apiBaseUrl("/customers"), {
-        headers: {
-          Authorization: new Cookies().get("token"),
-        },
-      })
-      .catch((error) => {
-        toast.error(error.response.data.message);
-        if (error.response.data.message === "Unauthenticated.") {
-          new Cookies().remove("token");
-          navigate("/");
-          return;
-        }
-      });
+    const response = await axiosInstance.get(apiBaseUrl("/customers"));
 
-    setCustomers(response.data.customers);
     setInitCustomers(response.data.customers);
     setIsFetchingCustomer(false);
+
+    if (!inputCustomerName.current.value) return setCustomers(response.data.customers);
+    return setCustomers(response.data.customers?.filter((customer) => customer.name.toLowerCase().includes(inputCustomerName.current.value.toLowerCase())));
   }
 
   const handleInputCustomerChange = () => {
@@ -72,17 +50,11 @@ export default function Customers() {
   };
 
   function deleteCustomer(id, closeButton) {
-    // console.log("Deleting customer : " + id);
-
     closeButton.click();
     const deleteCustomerToast = toast.loading("Menghapus Customer...");
 
-    axios
-      .delete(apiBaseUrl("/customers/" + id), {
-        headers: {
-          Authorization: new Cookies().get("token"),
-        },
-      })
+    axiosInstance
+      .delete(apiBaseUrl(`/customers/${id}`))
       .then((response) => {
         toast.update(deleteCustomerToast, { render: response.data.message, type: "success", isLoading: false, autoClose: 3000, draggable: true, closeOnClick: true });
         closeButton.click();
@@ -94,27 +66,39 @@ export default function Customers() {
   }
 
   return (
-    <MasterLayout>
-      <div className="container pb-2">
-        <div className="title fs-4 fw-bold text-center mb-2">Data Customer</div>
+    <AuthenticatedLayout>
+      <MasterLayout>
+        <div className="container pb-2">
+          <div className="title fs-4 fw-bold text-center mb-2">Data Customer</div>
 
-        <div className="mb-3">
-          <input onChange={handleInputCustomerChange} type="text" ref={inputCustomerName} className="form-control bg-light rounded-pill" placeholder="Masukkan nama customer..." />
+          <div className="mb-3">
+            <input onChange={handleInputCustomerChange} type="text" ref={inputCustomerName} className="form-control bg-light rounded-pill" placeholder="Masukkan nama customer..." />
+          </div>
+
+          <button className="add-customer rounded-pill btn button-accent-purple w-100 mb-3" style={{ background: "#287eff" }} data-bs-toggle="modal" data-bs-target="#add-customer-modal">
+            Tambah Customer
+          </button>
+
+          <div className="customers">
+            {isFetchingCustomer && <CustomerSkeleton />}
+            {customers?.map((customer) => (
+              <Customer
+                key={customer.id}
+                customerId={customer.id}
+                customer={customer}
+                fetchCustomers={fetchCustomers}
+                setSelectedEditCustomerId={setSelectedEditCustomerId}
+                selectedEditCustomerId={selectedEditCustomerId}
+                selectedEditCustomer={selectedEditCustomer}
+                deleteCustomer={deleteCustomer}
+              />
+            ))}
+          </div>
         </div>
 
-        <button className="add-customer rounded-pill btn button-accent-purple w-100 mb-3" style={{ background: "#287eff" }} data-bs-toggle="modal" data-bs-target="#add-customer-modal">
-          Tambah Customer
-        </button>
-
-        <div className="customers">
-          {isFetchingCustomer && <CustomerSkeleton />}
-          {customers?.map((customer) => (
-            <Customer key={customer.id} customerId={customer.id} customer={customer} fetchCustomers={fetchCustomers} setSelectedEditCustomerId={setSelectedEditCustomerId} selectedEditCustomerId={selectedEditCustomerId} selectedEditCustomer={selectedEditCustomer} deleteCustomer={deleteCustomer} />
-          ))}
-        </div>
-      </div>
-      {/* ADD CUSTOMER MODAL */}
-      <AddCustomerModal fetchCustomers={fetchCustomers} />
-    </MasterLayout>
+        {/* ADD CUSTOMER MODAL */}
+        <AddCustomerModal fetchCustomers={fetchCustomers} />
+      </MasterLayout>
+    </AuthenticatedLayout>
   );
 }

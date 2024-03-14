@@ -1,12 +1,14 @@
 import React from "react";
-import { format, formatRelative } from "date-fns";
+import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
 import Cookies from "universal-cookie";
 import DetailSubOrder from "./DetailSubOrder";
 import { formatRupiah } from "../helper/helper";
+import "../styles/order.css";
 
-export default function Order({ order, index }) {
+export default function Order({ order, orders, setOrders }) {
+  // Misc
   const navigate = useNavigate();
 
   function handleRedirect() {
@@ -15,12 +17,42 @@ export default function Order({ order, index }) {
     navigate(`/orders?id=${order.id}`);
   }
 
-  return (
-    <div id={`order-${order.id}`} data-aos={index % 2 === 0 ? "flip-left" : "flip-right"} data-aos-duration="400" className="card text-center mb-3" style={{ cursor: "pointer" }} onClick={handleRedirect}>
-      <div className="card-body text-start m-0 p-0">
-        <h5 className="card-header fw-bold text-center rounded-top p-2 border-2 border-black border-bottom">{order?.customer.name}</h5>
+  function expandDetailOrder(event) {
+    event.stopPropagation();
 
-        <div className="p-3">
+    const newOrders = orders?.map((record) => {
+      if (record.id == order.id) return { ...record, expand: !order?.expand };
+
+      return record;
+    });
+
+    setOrders(newOrders);
+  }
+
+  function _renderExpandIcon() {
+    return (
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+        <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd"></path>
+      </svg>
+    );
+  }
+
+  //CSS Stylesheet objects
+  const masterStyle = {
+    showDetailOrder: { borderRadius: "0", borderTopRightRadius: ".4rem", minWidth: "3rem", fontSize: ".8rem" },
+  };
+
+  return (
+    <div id={`order-${order.id}`} className="shadow-md card text-center mb-2" style={{ cursor: "pointer" }} onClick={handleRedirect}>
+      <div className="card-body text-start m-0 p-0">
+        <h5 className="card-header fw-bold text-center rounded-top p-2 border-2 border-black border-bottom position-relative">
+          <span>{order?.customer.name}</span>
+          <div className="button-accent-purple position-absolute end-0 top-50 translate-middle-y px-3 h-100 d-flex justify-content-center align-items-center" style={masterStyle.showDetailOrder} onClick={expandDetailOrder}>
+            {_renderExpandIcon()}
+          </div>
+        </h5>
+
+        <div className={`overflow-hidden ${order?.expand && "p-3"}`} style={{ height: order?.expand ? "auto" : "0" }}>
           <table style={{ width: "100%" }}>
             <tbody>
               <tr>
@@ -64,7 +96,12 @@ export default function Order({ order, index }) {
                 <td className="fw-bold">Status Bayar</td>
                 <td className="px-2">:</td>
                 <td>
-                  <span className={`${order?.payment_status === "Belum bayar" ? "bg-danger" : order?.payment_status === "Lunas" ? "bg-success" : order?.payment_status === "Sudah bayar" ? "bg-warning" : "Unknown"} p-3 rounded py-0 text-white fw-bold d-flex justify-content-center align-items-center`}>{order?.payment_status}</span>
+                  <span
+                    className={`${
+                      order?.payment_status === "Belum bayar" ? "bg-danger" : order?.payment_status === "Lunas" ? "bg-success" : order?.payment_status === "Sudah bayar" ? "bg-warning" : "Unknown"
+                    } p-3 rounded py-0 text-white fw-bold d-flex justify-content-center align-items-center`}>
+                    {order?.payment_status}
+                  </span>
                 </td>
               </tr>
             </tbody>

@@ -1,35 +1,33 @@
-import React from "react";
+import React, { useContext } from "react";
 import DatePicker from "react-datepicker";
 import { apiBaseUrl } from "../provider/ApiService";
-import axios from "axios";
 import Cookies from "universal-cookie";
 import { toast } from "react-toastify";
 import { format } from "date-fns";
+import { AxiosContext } from "../service/axios/AxiosProvider";
 
-export default function ChangeDoneAtForm({ hideModal, fetchOrder, finishDate, setFinishDate, orderId }) {
+export default function ChangeDoneAtForm({ hideModal, fetchOrder, finishDate, setFinishDate, orderId, setUpdateOrderLoading}) {
+  // Context
+  const axiosInstance = useContext(AxiosContext);
+  
   function handleCreatedAtChange() {
-    const id = toast.loading("Please wait...");
-
-    axios
+    setUpdateOrderLoading(true);
+    
+    axiosInstance
       .put(
         apiBaseUrl("/orders/done_at/" + orderId),
         {
           done_at: format(finishDate, "dd-MM-yyyy"),
-        },
-        {
-          headers: {
-            Authorization: new Cookies().get("token"),
-          },
         }
       )
       .then((response) => {
-        toast.update(id, { render: response.data.message, type: "success", closeButton: true, closeOnClick: true, autoClose: 2000, isLoading: false });
+        toast.success(response.data.message);
         fetchOrder();
         hideModal();
       })
-      .catch((error) => {
-        toast.update(id, { render: error.response.data.message, type: "error", closeButton: true, closeOnClick: true, autoClose: 2000, isLoading: false });
-      });
+      .finally(() => {
+        setUpdateOrderLoading(false);
+      })
   }
 
   return (
